@@ -1,0 +1,10 @@
+animated:
+    osg_filename: /home/lab/fishvr/experiments/osgts/2VF-Fish-bowl-kk-bias.osgt
+    # osg1_filename: /home/lab/fishvr/experiments/VR-Fish1.osgt
+    # osg2_filename: /home/lab/fishvr/experiments/VR-Fish1.osgt
+    node_name1: Fish1 
+    node_name2: Fish2
+    node_bowl:  Bowl 
+    # fade_time_seconds: 1
+    animation_name: ArmatureAction
+    should_animate: true
