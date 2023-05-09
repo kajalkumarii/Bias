@@ -470,7 +470,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.log.dt = dt
             self.log.rho_fish = rho_fish
             self.log.rotSpeed = rotSpeed
-            self.log.fishHeading = fishHeading
+            # self.log.fishHeading = fishHeading
 
             self.log.update()
 
