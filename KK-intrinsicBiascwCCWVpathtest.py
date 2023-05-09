@@ -91,11 +91,23 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         return r2 < (0.15**2)
 
 
-    def hide_nodes(self):
-        self._osg_model.move_node(self._node_name1, hidden=True)
-        self._osg_model.move_node(self._node_name2, hidden=True)
+    def hide_node(self, node_name):
+        self._osg_model.move_node(node_name, hidden=True)
 
-    
+    def show_node(self, node_name):
+        self._osg_model.move_node(node_name, hidden=False)
+
+
+    def move_in_circle(self, pathRadius, angle):
+        zHeight = -0.03  # height of the center of the circle above the table
+        pathRadius = 0.08  # radius of the circle the arm will move in
+        rotSpeed = np.float64(0.025 * np.pi)  # speed of rotation
+        osgNodeX1 = self.centerX + pathRadius * np.cos(angle)  # x position of the node
+        osgNodeY1 = self.centerY + pathRadius * np.sin(angle)  # y position of the node
+
+    def rho_fish(self, fishx, fishy):
+        rho_fish = np.sqrt(fishx**2+fishy**2)
+        return rho_fish
 
     # this is the main function that is called after the node is constructed. you can do anything
     # you wish in here, but typically this is where you would dynamically change the virtual
@@ -108,17 +120,13 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         fishx=0
         fishy=0
         fishz=0
-
-        main_fish_x=[None]*20
-        main_fish_y=[None]*20
-
         osgNodeX1 = 0
         osgNodeY1 = 0
         osgNodeX2 = 0
         osgNodeY2 = 0
         
-        centerX = 0
-        centerY = 0
+        self.centerX = 0
+        self.centerY = 0
         zHeight = -0.03
         pathRadius = 0
         
@@ -200,67 +208,62 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 self.noStimDurPreExpComplete = True
 
 
-            # if self.noStimDurPreExpComplete:
+            if self.noStimDurPreExpComplete:
 
-            #     # check if stimtrial is complete, if true, initiate interstim
-            #     if self.stimTrialComplete:
+                # check if stimtrial is complete, if true, initiate interstim
+                if self.stimTrialComplete:
+                    # If the stim trial is complete, initiate the interStim period
+                    if not self.interStimInitiated:
+                        print("interStimInitiated")
+                        self.interStimInitiated = True
+                        self.interStimComplete = False
+                        self.hide_node(self._node_name1)
+                        self.hide_node(self._node_name2)
+                        self.interStimFRAME = 0
+                    else:
+                        self.interStimFRAME += 1
+                        print("interStimFRAME: ", self.interStimFRAME)
 
-            #         if not self.interStimInitiated:
-            #             print("interStimInitiated")
-            #             self.interStimInitiated = True
-            #             self.interStimComplete = False
-            #             self._osg_model.move_node(self._node_name1, hidden=True)
-            #             self._osg_model.move_node(self._node_name2, hidden=True)
-            #             self.interStimFRAME = 0
-            #         else:
-            #             self.interStimFRAME += 1
-            #             print("interStimFRAME: ", self.interStimFRAME)
+                    if self.interStimFRAME > self.interStimDur:
+                        self.interStimComplete = True
+                        self.interStimInitiated = False
+                        self.stimTrialComplete = False
+                        self.stimChangeComplete = True
+                        print("interStimComplete")
 
-            #         if self.interStimFRAME > self.interStimDur:
-            #             self.interStimComplete = True
-            #             self.interStimInitiated = False
-            #             self.stimTrialComplete = False
-            #             self.stimChangeComplete = True
-            #             print("interStimComplete")
+                        # check if interstrial is complete, if true, initiate stim
 
-            #             # check if interstrial is complete, if true, initiate stim
+                if self.interStimComplete:
 
-            #     if self.interStimComplete:
-
-            #         if not self.stimTrialInititated:
-            #             print("stimTrialInititated")
-            #             self.stimTrialInititated = True
-            #             self.stimTrialComplete = False
-            #             self._osg_model.move_node(self._node_name1, hidden=False)
-            #             self._osg_model.move_node(self._node_name2, hidden=False)
-            #             self.stimTrialFRAME = 0
-            #             self.currentStim = self.stimTrials[self.currentStimTrial]
-            #         # else:    
-            #             self.currentStimTrial += 1
-            #         #     print("currentStimTrial: ", self.currentStimTrial)
-            #         #     # self.currentStim = self.stimTrials[self.currentStimTrial]
+                    if not self.stimTrialInititated:
+                        print("stimTrialInititated")
+                        self.stimTrialInititated = True
+                        self.stimTrialComplete = False
+                        self.hide_node(self._node_name1)
+                        self.hide_node(self._node_name2)
+                        self.stimTrialFRAME = 0
+                        self.currentStim = self.stimTrials[self.currentStimTrial]
+                    # else:    
+                        self.currentStimTrial += 1
+                    #     print("currentStimTrial: ", self.currentStimTrial)
+                    #     # self.currentStim = self.stimTrials[self.currentStimTrial]
 
 
             #         # RUN stim trial by changing the position of the virtual fish
-            #         if self.currentStimTrial < self.stimTrialCount:
-            #             self.currentDirection = self.stimDirections[self.currentStimTrial]
-            #             print("currentDirection: ", self.currentDirection)
+                    if self.currentStimTrial < self.stimTrialCount:
+                        self.currentDirection = self.stimDirections[self.currentStimTrial]
+                        print("currentDirection: ", self.currentDirection)
 
-            #             if self.currentStim == 1:
-            #                 self.currentStim = 1
-            #                 print("currentStim: single VF", self.currentStim)
-            #                 zHeight = -0.03
-            #                 pathRadius = 0.08
-            #                 rotSpeed = np.float64(0.025 * np.pi)
-            #                 osgNodeX1 = centerX + pathRadius * np.cos(angle)
-            #                 osgNodeY1 = centerY + pathRadius * np.sin(angle)
+                        if self.currentStim == 1:
+                            self.currentStim = 1
+                            print("currentStim: single VF", self.currentStim)
+                            self.move_in_circle()
             #                 # osgNodeX1 += centerX + pathRadius*np.cos(angle)
             #                 # osgNodeY1 += centerY + pathRadius*np.sin(angle)
 
             #                 angle += rotSpeed * self.currentDirection * dt
             #                 orientation = angle + (np.pi/2 * self.currentDirection)
                             
-            #                 print("x: ", osgNodeX1, "y: ", osgNodeY1, "z: ", zHeight, "orientation: ", angle)
             #                 self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z= orientation)
             #                 self._osg_model.move_node(self._node_name2, hidden=True)
 
@@ -431,14 +434,13 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
             #         if self.currentStimTrial > self.stimTrialCount:
 
-            #             if (i < self.noStimDurPostExp):
-            #                 print("noStimDurPostExp")
-            #                 self._osg_model.move_node(self._node_name1, hidden=True)
-            #                 self._osg_model.move_node(self._node_name2, hidden=True)
-            #                 self.noStimDurPostExpComplete = False
-            #             else:
-            #                 self.noStimDurPostExpComplete = True
-            #             self.noStimDurPostExpFRAME += 1
+                        # if (i < self.noStimDurPostExp):
+                        #     print("noStimDurPostExp")
+                        #     self.hide_nodes()
+                        #     self.noStimDurPostExpComplete = False
+                        # else:
+                        #     self.noStimDurPostExpComplete = True
+                        # self.noStimDurPostExpFRAME += 1
                             
             
             # save all data
@@ -456,7 +458,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.log.currentStim = self.currentStim
             self.log.angle = angle
             self.log.zHeight = zHeight
-            # self.log.allStimComplete = self.allStimComplete
             self.log.noStimDurPostExpComplete = self.noStimDurPostExpComplete
             self.log.noStimDurPostExpFRAME = self.noStimDurPostExpFRAME
             self.log.noStimDurPostExp = self.noStimDurPostExp
@@ -468,7 +469,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.log.dt = dt
             self.log.rho_fish = rho_fish
             self.log.rotSpeed = rotSpeed
-            # self.log.fishHeading = fishHeading
+            self.log.fishHeading = fishHeading
 
             self.log.update()
 
@@ -483,57 +484,3 @@ def main():
 
 if __name__=='__main__':
     main()
-
-
-# if self.currentStim == 2:
-#     self.currentStim = 2
-#     print("currentStim: parallel pair VF-single", self.currentStim)
-#     self.currentDirection = self.stimDirections[self.currentStimTrial]
-#     rho_fish = np.sqrt(fishx**2+fishy**2)
-
-#     while rho_fish > rho:
-#         print("fish is beyond radius", rho_fish)
-#         pathRadius = 0.02
-#         rotSpeed = np.float64(0.025 * np.pi)
-#         osgNodeX1 = centerX + pathRadius * np.cos(angle)
-#         osgNodeY1 = centerY + pathRadius * np.sin(angle)
-#         osgNodeX1 += centerX + pathRadius*np.cos(angle)
-#         osgNodeY1 += centerY + pathRadius*np.sin(angle)
-
-#         angle += rotSpeed * self.currentDirection * dt
-#         orientation = angle + (np.pi/2 * self.currentDirection)
-
-#         print("x: ", osgNodeX1, "y: ", osgNodeY1, "z: ", zHeight, "orientation: ", angle)
-#         self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z= orientation)
-#         self._osg_model.move_node(self._node_name2, hidden=True)
-
-#         self.stimTrialFRAME += 1
-
-#         # Update the value of rho_fish for the next iteration of the while loop
-#         rho_fish = np.sqrt(fishx**2+fishy**2)
-
-#     print("fish is within radius", rho_fish)
-#     print("currentStim: parallel pair VF", self.currentStim)
-#     #  get heading of the fish based on previous 400 frames
-#     zHeight = -0.03
-#     self.currentDirection = self.stimDirections[self.currentStimTrial]
-
-#     # get orientation of the fish 
-#     fishHeading = -np.arctan2(fishy, fishx)
-
-#     # project two virtual fish 0.09m aprt at 0.015m distance from the fish in the direction of fishHeading at 45 degrees angle to left and right of the fishHeading
-#     osgNodeX1 = fishx + 0.015 * np.cos(fishHeading + np.pi/4)
-#     osgNodeY1 = fishy + 0.015 * np.sin(fishHeading + np.pi/4)
-#     osgNodeX2 = fishx + 0.015 * np.cos(fishHeading - np.pi/4)
-#     osgNodeY2 = fishy + 0.015 * np.sin(fishHeading - np.pi/4)
-
-#     # move the virtual fish 
-
-
-#     # osgNodeX1 += osgNodeX1 + 0.05 * np.cos(fishHeading)
-#     # osgNodeY1 += osgNodeY1 + 0.05 * np.sin(fishHeading)
-#     # osgNodeX2 += osgNodeX2 - 0.05 * np.cos(fishHeading)
-#     # osgNodeY2 += osgNodeY2 - 0.05 * np.sin(fishHeading)
-
-#     self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z= fishHeading)
-#     self._osg_model.move_node(self._node_name2, x=osgNodeX2
