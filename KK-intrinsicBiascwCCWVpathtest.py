@@ -192,7 +192,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 #The "self.noStimDurPreExpFRAME" is the number of frames to wait in this state
                 #This code is called from the "run" function of the "ExperimentRunner" class
 
-                self.hide_nodes(self)
+                self.hide_nodes()
                 self.noStimDurPreExpComplete = False
                 self.noStimDurPreExpFRAME = i
                 print("noStimDurPreExpFRAME: ", self.noStimDurPreExpFRAME)
