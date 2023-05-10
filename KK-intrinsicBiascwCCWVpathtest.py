@@ -301,8 +301,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                         if self.currentStim == 1:
                             self.currentStim = 1
                             print("currentStim: single VF", self.currentStim)
+                            rotSpeed=np.float64(0.00625 * np.pi)
                             angle += rotSpeed * self.currentDirection * dt
-                            self.move_in_circle(0.08,angle,rotSpeed=np.float64(0.00625 * np.pi))
+                            self.move_in_circle(0.08,angle,rotSpeed)
                             self.stimTrialFRAME += 1
 
                         elif self.currentStim == 2:
@@ -311,23 +312,33 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
                             if rho_fish > rho:
                                 print("fish is beyond radius", rho_fish)
+                                rotSpeed=np.float64(0.025 * np.pi)
                                 angle += rotSpeed * self.currentDirection * dt
-                                self.move_in_circle(0.02,angle,rotSpeed=np.float64(0.025 * np.pi))
+                                self.move_in_circle(0.02,angle,rotSpeed)
 
                                 self.stimTrialFRAME += 1
                             else:
                                 print("fish is within radius", rho_fish)
                                 print("currentStim: parallel pair VF", self.currentStim)
-
+                                rotSpeed=np.float64(0.025 * np.pi)
                                 angle += rotSpeed * self.currentDirection * dt
-                                self.move_in_diverging_path(angle, rotSpeed=np.float64(0.025 * np.pi), centerX=fishx, centerY=fishy)
+                                self.move_in_diverging_path(angle, rotSpeed, centerX=fishx, centerY=fishy)
                                 self.counter += 1
                                 self.positions.append((fishx, fishy))
                                 self.stimTrialFRAME += 1
 
 
                         elif self.currentStim == 3:
-                            print("stim 3")      
+                            print("stim 3")  
+
+                                    # Check if the current trial is finished
+                    if self.stimTrialFRAME > self.stimTrialDur:
+                        self.stimTrialComplete = True
+                        self.stimTrialInititated = False
+
+                        # If the current trial is complete, increment the currentStimTrial
+                        if self.stimTrialComplete:
+                            self.currentStimTrial += 1    
 
                     if self.currentStimTrial > self.stimTrialCount:
 
