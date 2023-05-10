@@ -311,7 +311,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                                 print("fish is within radius", rho_fish)
                                 print("currentStim: parallel pair VF", self.currentStim)
 
-                                self.move_in_diverging_path(0.01, angle, rotSpeed, dt=0.01, centerX, centerY)
+                                self.move_in_diverging_path(0.01, angle, rotSpeed, dt=0.01, centerX=fishx, centerY=fishy)
                                 self.counter += 1
                                 self.positions.append((fishx, fishy))
                                 self.stimTrialFRAME += 1
