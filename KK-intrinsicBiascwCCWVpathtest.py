@@ -399,13 +399,17 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
                     if self.currentStimTrial > self.stimTrialCount:
 
-                        if (i < self.noStimDurPostExp):
-                            print("noStimDurPostExp")
-                            self.hide_nodes()
+                        # run noStimDurPostExp
+                        if (i > self.noStimDurPreExp + self.stimTrialCount * (self.stimTrialDur + self.interStimDur)):
+                        #  hide nodes for duration of nostimpostexpdur
+                        # 
+                            self.hide_node(self._node_name1)
+                            self.hide_node(self._node_name2)
                             self.noStimDurPostExpComplete = False
-                        else:
-                            self.noStimDurPostExpComplete = True
-                        self.noStimDurPostExpFRAME += 1
+                            self.noStimDurPostExpFRAME = i - (self.noStimDurPreExp + self.stimTrialCount * (self.stimTrialDur + self.interStimDur))
+                            print("noStimDurPostExpFRAME: ", self.noStimDurPostExpFRAME)
+                             
+
                             
             
             # save all data
