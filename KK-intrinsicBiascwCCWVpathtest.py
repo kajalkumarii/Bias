@@ -191,9 +191,11 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             new_position1 = np.array([self.init_x1, self.init_y1]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(heading + np.pi), np.sin(heading + np.pi)])
             new_position2 = np.array([self.init_x2, self.init_y2]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(heading + np.pi), np.sin(heading + np.pi)])
 
+        if new_position1 is None or new_position2 is None:
+            raise ValueError("new_position1 or new_position2 is not assigned a value")
+        
         self._osg_model.move_node(self._node_name1, x=new_position1[0], y=new_position1[1], z=zHeight, orientation_z=heading)
         self._osg_model.move_node(self._node_name2, x=new_position2[0], y=new_position2[1], z=zHeight, orientation_z=heading + np.pi)
-
 
         self.positions.append((new_position1, new_position2))
         self.counter += 1
