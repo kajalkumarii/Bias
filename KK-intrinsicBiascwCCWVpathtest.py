@@ -100,10 +100,11 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self._osg_model.move_node(node_name, hidden=False)
 
 
-    def move_in_circle(self, pathRadius, angle, rotSpeed, dt):
+    def move_in_circle(self, pathRadius, angle, rotSpeed):
         zHeight = -0.03  # height of the center of the circle above the table
         # pathRadius = 0.08  # radius of the circle the arm will move in
         # rotSpeed = np.float64(0.025 * np.pi)  # speed of rotation
+        dt = 0.01  # time step
         osgNodeX1 = self.centerX + pathRadius * np.cos(angle)  # x position of the node
         osgNodeY1 = self.centerY + pathRadius * np.sin(angle)  # y position of the node
         angle += rotSpeed * self.currentDirection * dt
@@ -115,13 +116,14 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         rho_fish = np.sqrt(fishx**2+fishy**2)
         return rho_fish
     
-    def move_in_diverging_path(self, angle, rotSpeed, dt, centerX, centerY):
+    def move_in_diverging_path(self, angle, rotSpeed, centerX, centerY):
         if not self.positions:
             return
 
         fishx, fishy = self.positions[0]
 
         zHeight = -0.03
+        dt = 0.01
         self.currentDirection = self.stimDirections[self.currentStimTrial]
 
         fishHeading = np.arctan2(fishy, fishx)
@@ -295,7 +297,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                         if self.currentStim == 1:
                             self.currentStim = 1
                             print("currentStim: single VF", self.currentStim)
-                            self.move_in_circle(0.01,angle,rotSpeed, dt=0.01)
+                            self.move_in_circle(0.08,angle,rotSpeed=np.float64(0.00625 * np.pi))
                             self.stimTrialFRAME += 1
 
                         elif self.currentStim == 2:
@@ -304,14 +306,14 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
                             if rho_fish > rho:
                                 print("fish is beyond radius", rho_fish)
-                                self.move_in_circle(0.01,angle,rotSpeed, dt=0.01)
+                                self.move_in_circle(0.02,angle,rotSpeed=np.float64(0.025 * np.pi))
 
                                 self.stimTrialFRAME += 1
                             else:
                                 print("fish is within radius", rho_fish)
                                 print("currentStim: parallel pair VF", self.currentStim)
 
-                                self.move_in_diverging_path(0.01, angle, rotSpeed, dt=0.01, centerX=fishx, centerY=fishy)
+                                self.move_in_diverging_path(angle, rotSpeed=np.float64(0.025 * np.pi), centerX=fishx, centerY=fishy)
                                 self.counter += 1
                                 self.positions.append((fishx, fishy))
                                 self.stimTrialFRAME += 1
