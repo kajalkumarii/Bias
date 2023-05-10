@@ -57,6 +57,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self._node_bowl = ''
         self._anim_name = ''
         self._should_animate = False
+        self.counter = 0
+        self.positions = []
 
         # StimulusOSGController makes it easier to control things in osg files
         self._osg_model = osg_utils.StimulusOSGController()
@@ -98,10 +100,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self._osg_model.move_node(node_name, hidden=False)
 
 
-    def move_in_circle(self, pathRadius, angle):
+    def move_in_circle(self, pathRadius, angle, rotSpeed, dt):
         zHeight = -0.03  # height of the center of the circle above the table
-        pathRadius = 0.08  # radius of the circle the arm will move in
-        rotSpeed = np.float64(0.025 * np.pi)  # speed of rotation
+        # pathRadius = 0.08  # radius of the circle the arm will move in
+        # rotSpeed = np.float64(0.025 * np.pi)  # speed of rotation
         osgNodeX1 = self.centerX + pathRadius * np.cos(angle)  # x position of the node
         osgNodeY1 = self.centerY + pathRadius * np.sin(angle)  # y position of the node
         angle += rotSpeed * self.currentDirection * dt
@@ -112,6 +114,42 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     def rho_fish(self, fishx, fishy):
         rho_fish = np.sqrt(fishx**2+fishy**2)
         return rho_fish
+    
+    def move_in_diverging_path(self, angle, rotSpeed, dt, centerX, centerY):
+        if not self.positions:
+            return
+
+        fishx, fishy = self.positions[0]
+
+        zHeight = -0.03
+        self.currentDirection = self.stimDirections[self.currentStimTrial]
+
+        fishHeading = np.arctan2(fishy, fishx)
+
+        osgNodeX1 = centerX + 0.05 * np.cos(-(np.pi / 2 - fishHeading))
+        osgNodeY1 = centerY + 0.05 * np.sin(-(np.pi / 2 - fishHeading))
+        osgNodeX2 = centerX + 0.05 * np.cos(-(np.pi / 2 - fishHeading + np.pi / 3))
+        osgNodeY2 = centerY + 0.05 * np.sin(-(np.pi / 2 - fishHeading + np.pi / 3))
+
+        self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z=fishHeading)
+        self._osg_model.move_node(self._node_name2, x=osgNodeX2, y=osgNodeY2, z=zHeight, orientation_z=fishHeading)
+
+        angle += rotSpeed * self.currentDirection * dt
+
+        centerX = fishx
+        centerY = fishy
+        zHeight = -0.03
+
+        osgNodeX1 = centerX + 0.05 * np.cos(-(np.pi / 2 - angle))
+        osgNodeY1 = centerY + 0.05 * np.sin(-(np.pi / 2 - angle))
+        osgNodeX2 = centerX + 0.05 * np.cos(-(np.pi / 2 - angle + np.pi / 3))
+        osgNodeY2 = centerY + 0.05 * np.sin(-(np.pi / 2 - angle + np.pi / 3))
+
+        self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight)
+        self._osg_model.move_node(self._node_name2, x=osgNodeX2, y=osgNodeY2, z=zHeight)
+
+
+
 
     # this is the main function that is called after the node is constructed. you can do anything
     # you wish in here, but typically this is where you would dynamically change the virtual
@@ -195,9 +233,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             fishy = self.object_position.y
             fishz = self.object_position.z
 
-            # get the radius of the fish position in the arena
-            rho_fish = np.sqrt(fishx**2+fishy**2)
-
             if (i < self.noStimDurPreExp):
                 # hide the wall
                 #This is the code that controls the noStimDurPreExp state
@@ -250,9 +285,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                         self.currentStim = self.stimTrials[self.currentStimTrial]
                     # else:    
                         self.currentStimTrial += 1
-                    #     print("currentStimTrial: ", self.currentStimTrial)
                     #     # self.currentStim = self.stimTrials[self.currentStimTrial]
-
 
             #         # RUN stim trial by changing the position of the virtual fish
                     if self.currentStimTrial < self.stimTrialCount:
@@ -262,87 +295,83 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                         if self.currentStim == 1:
                             self.currentStim = 1
                             print("currentStim: single VF", self.currentStim)
-                            self.move_in_circle()
+                            self.move_in_circle(0.01,angle,rotSpeed, dt=0.01)
+                            self.stimTrialFRAME += 1
+
+                        elif self.currentStim == 2:
+                            self.currentStim = 2
+                            rho_fish = self.rho_fish(fishx, fishy)
+
+                            if rho_fish > rho:
+                                print("fish is beyond radius", rho_fish)
+                                self.move_in_circle(0.01,angle,rotSpeed, dt=0.01)
+
+                                self.stimTrialFRAME += 1
+                            else:
+                                print("fish is within radius", rho_fish)
+                                print("currentStim: parallel pair VF", self.currentStim)
+
+                                self.move_in_diverging_path(0.01, angle, rotSpeed, dt=0.01, centerX, centerY)
+                                self.counter += 1
+                                self.positions.append((fishx, fishy))
+                                self.stimTrialFRAME += 1
 
 
+                        elif self.currentStim == 3:
+                            print("stim 3")      
 
+                    if self.currentStimTrial > self.stimTrialCount:
 
-            #                 self.stimTrialFRAME += 1
-
-            #             elif self.currentStim == 2:
-            #                 self.currentStim = 2
-            #                 rho_fish = np.sqrt(fishx**2+fishy**2)
-
-            #                 if rho_fish > rho:
-            #                     print("fish is beyond radius", rho_fish)
-            #                     zHeight = -0.03
-            #                     pathRadius = 0.02
-            #                     rotSpeed = np.float64(0.025 * np.pi)
-            #                     osgNodeX1 = centerX + pathRadius * np.cos(angle)
-            #                     osgNodeY1 = centerY + pathRadius * np.sin(angle)
-
-
-            #                     angle += rotSpeed * self.currentDirection * dt
-            #                     orientation = angle + (np.pi/2 * self.currentDirection)
-                                
-            #                     print("x: ", osgNodeX1, "y: ", osgNodeY1, "z: ", zHeight, "orientation: ", angle)
-            #                     self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z= orientation)
-            #                     self._osg_model.move_node(self._node_name2, hidden=True)
-
-            #                     self.stimTrialFRAME += 1
-            #                 else:
-            #                     print("fish is within radius", rho_fish)
-            #                     print("currentStim: parallel pair VF", self.currentStim)
-
-            #                     # get heading of the fish based on previous 400 frames
-            #                     zHeight = -0.03
-            #                     self.currentDirection = self.stimDirections[self.currentStimTrial]
-
-            #                     # get orientation of the fish 
-            #                     fishHeading = np.arctan2(fishy, fishx)
-                                
-            #                     #+ 0.005 * np.sin(fishHeading + np.pi/3)
-            #                     # project two virtual fish from the center of arena heading opposite to the fish moving away from the fish 
-            #                     # # at 60 degrees between them for a distance of 0.3m and then stop at speed of 0.05m/s
-                                
-                                
-            #                     osgNodeX1 = centerX + 0.05 * np.cos(-(np.pi/2 - fishHeading))
-            #                     osgNodeY1 = centerY + 0.05 * np.sin(-(np.pi/2 - fishHeading))
-            #                     osgNodeX2 = centerX + 0.05 * np.cos(-(np.pi/2 - fishHeading + np.pi/3))
-            #                     osgNodeY2 = centerY + 0.05 * np.sin(-(np.pi/2 - fishHeading + np.pi/3))
-
-            #                     self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z=fishHeading)
-            #                     self._osg_model.move_node(self._node_name2, x=osgNodeX2, y=osgNodeY2, z=zHeight, orientation_z=fishHeading)
-
-            #                     # initialize variables for the while loop
-            #                     angle = 0
-            #                     rotSpeed = np.float64(0.025 * np.pi)
-            #                     dt = 0.01
-
-            #                     total_distance = 0
+                        if (i < self.noStimDurPostExp):
+                            print("noStimDurPostExp")
+                            self.hide_nodes()
+                            self.noStimDurPostExpComplete = False
+                        else:
+                            self.noStimDurPostExpComplete = True
+                        self.noStimDurPostExpFRAME += 1
                             
-            #                     # add a while loop that moves the virtual fish by 0.05m in each iteration
-            #                     # while self.stimTrialFRAME < self.stimTrialDur:
-            #                     while total_distance < 0.2:    
-            #                         # main_fish_x[(total_distance)/0.05]=fishx
-            #                         # main_fish_y[(total_distance)/0.05]=fishy
-            #                         centerX =fishx #+ 0.005 * np.cos(fishHeading + np.pi/3)
-            #                         centerY =fishy
-            #                         zHeight = -0.03
-            #                         angle += rotSpeed * self.currentDirection * dt
+            
+            # save all data
+            self.log.realtime = timing
+            self.log.osgNodeX1 = osgNodeX1
+            self.log.osgNodeY1 = osgNodeY1
+            self.log.osgNodeX2 = osgNodeX2
+            self.log.osgNodeY2 = osgNodeY2
+            self.log.orientation = orientation
+            self.log.time_i = i
+            self.log.fishx = fishx
+            self.log.fishy = fishy
+            self.log.fishz = fishz
+            self.log.currentDirection = self.currentDirection
+            self.log.currentStim = self.currentStim
+            self.log.angle = angle
+            self.log.zHeight = zHeight
+            self.log.noStimDurPostExpComplete = self.noStimDurPostExpComplete
+            self.log.noStimDurPostExpFRAME = self.noStimDurPostExpFRAME
+            self.log.noStimDurPostExp = self.noStimDurPostExp
+            self.log.noStimDurPreExpComplete = self.noStimDurPreExpComplete
+            self.log.noStimDurPreExpFRAME = self.noStimDurPreExpFRAME
+            self.log.stimTrialFRAME = self.stimTrialFRAME
+            self.log.currentStimTrial = self.currentStimTrial
+            self.log.stimTrialComplete = self.stimTrialComplete
+            self.log.dt = dt
+            self.log.rho_fish = rho_fish
+            self.log.rotSpeed = rotSpeed
+            # self.log.fishHeading = fishHeading
 
-            #                         osgNodeX1 += centerX + 0.05 * np.cos(-(np.pi/2 - angle))
-            #                         osgNodeY1 += centerY + 0.05 * np.sin(-(np.pi/2 - angle))
-            #                         osgNodeX2 += centerX + 0.05 * np.cos(-(np.pi/2 - angle + np.pi/3))
-            #                         osgNodeY2 += centerY + 0.05 * np.sin(-(np.pi/2 - angle + np.pi/3))
+            self.log.update()
+
+            r.sleep()
 
 
-            #                         total_distance += 0.05
+def main():
+    rospy.init_node("experiment")
+    parser, args = fishvr.experiment.get_and_parse_commandline()
+    node = intrinsicBiasExperiment(args)
+    return node.run()
 
-            #                         self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight)#, orientation_z=fishHeading)
-            #                         self._osg_model.move_node(self._node_name2, x=osgNodeX2, y=osgNodeY2, z=zHeight)#, orientation_z=fishHeading)
-
-            #                     self.stimTrialFRAME += 1
+if __name__=='__main__':
+    main()
 
             #             elif self.currentStim == 3:
             #                 self.currentStim = 3
@@ -431,56 +460,3 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             #                         self.stimTrialInititated = False
             #                         self.stimChangeComplete = False
             #                         print("stimTrialComplete")
-
-            #         if self.currentStimTrial > self.stimTrialCount:
-
-                        # if (i < self.noStimDurPostExp):
-                        #     print("noStimDurPostExp")
-                        #     self.hide_nodes()
-                        #     self.noStimDurPostExpComplete = False
-                        # else:
-                        #     self.noStimDurPostExpComplete = True
-                        # self.noStimDurPostExpFRAME += 1
-                            
-            
-            # save all data
-            self.log.realtime = timing
-            self.log.osgNodeX1 = osgNodeX1
-            self.log.osgNodeY1 = osgNodeY1
-            self.log.osgNodeX2 = osgNodeX2
-            self.log.osgNodeY2 = osgNodeY2
-            self.log.orientation = orientation
-            self.log.time_i = i
-            self.log.fishx = fishx
-            self.log.fishy = fishy
-            self.log.fishz = fishz
-            self.log.currentDirection = self.currentDirection
-            self.log.currentStim = self.currentStim
-            self.log.angle = angle
-            self.log.zHeight = zHeight
-            self.log.noStimDurPostExpComplete = self.noStimDurPostExpComplete
-            self.log.noStimDurPostExpFRAME = self.noStimDurPostExpFRAME
-            self.log.noStimDurPostExp = self.noStimDurPostExp
-            self.log.noStimDurPreExpComplete = self.noStimDurPreExpComplete
-            self.log.noStimDurPreExpFRAME = self.noStimDurPreExpFRAME
-            self.log.stimTrialFRAME = self.stimTrialFRAME
-            self.log.currentStimTrial = self.currentStimTrial
-            self.log.stimTrialComplete = self.stimTrialComplete
-            self.log.dt = dt
-            self.log.rho_fish = rho_fish
-            self.log.rotSpeed = rotSpeed
-            # self.log.fishHeading = fishHeading
-
-            self.log.update()
-
-            r.sleep()
-
-
-def main():
-    rospy.init_node("experiment")
-    parser, args = fishvr.experiment.get_and_parse_commandline()
-    node = intrinsicBiasExperiment(args)
-    return node.run()
-
-if __name__=='__main__':
-    main()
