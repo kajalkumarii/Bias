@@ -127,7 +127,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         dt = 0.01
         velocity = 0.05  # 5 cm/s
-        distance_to_move = 0.5  # 50 cm
+        distance_to_move = 0.2  # 50 cm
         max_steps = int(distance_to_move / (velocity * dt))
         zHeight = -0.03
 
@@ -337,7 +337,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                         self.hide_node(self._node_name2)
                         self.stimTrialFRAME = 0
                         self.currentStimType = self.stimTrials[self.currentStimTrial] 
-                        self.currentStimTrial += 1
 
             #         # RUN stim trial by changing the position of the virtual fish
                     if self.currentStimTrial < self.stimTrialCount:
