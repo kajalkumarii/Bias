@@ -104,6 +104,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         rotSpeed = np.float64(0.025 * np.pi)  # speed of rotation
         osgNodeX1 = self.centerX + pathRadius * np.cos(angle)  # x position of the node
         osgNodeY1 = self.centerY + pathRadius * np.sin(angle)  # y position of the node
+        angle += rotSpeed * self.currentDirection * dt
+        orientation = angle + (np.pi/2 * self.currentDirection)
+        self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z= orientation)
+        self.hide_node(self._node_name2)
 
     def rho_fish(self, fishx, fishy):
         rho_fish = np.sqrt(fishx**2+fishy**2)
@@ -259,14 +263,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                             self.currentStim = 1
                             print("currentStim: single VF", self.currentStim)
                             self.move_in_circle()
-            #                 # osgNodeX1 += centerX + pathRadius*np.cos(angle)
-            #                 # osgNodeY1 += centerY + pathRadius*np.sin(angle)
 
-            #                 angle += rotSpeed * self.currentDirection * dt
-            #                 orientation = angle + (np.pi/2 * self.currentDirection)
-                            
-            #                 self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z= orientation)
-            #                 self._osg_model.move_node(self._node_name2, hidden=True)
+
+
 
             #                 self.stimTrialFRAME += 1
 
