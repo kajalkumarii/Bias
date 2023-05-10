@@ -156,7 +156,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.counter += 1
 
 
-
     def move_in_mirrored_d_paths(self, fishx, fishy, fishHeading):
         zHeight = -0.03
         dt = 0.01  # Define dt as a constant value within the function
@@ -171,6 +170,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.init_heading = fishHeading
 
         dist_travelled = self.counter * dt * linear_speed
+
+        new_position1 = None
+        new_position2 = None
 
         if dist_travelled < 0.08:
             new_position1 = np.array([self.init_x1, self.init_y1]) + dist_travelled * np.array([np.cos(self.init_heading), np.sin(self.init_heading)])
@@ -188,6 +190,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             new_position2 = np.array([self.init_x2, self.init_y2]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(self.init_heading + np.pi), np.sin(self.init_heading + np.pi)])
 
         self._osg_model.move_node(self._node_name1, x=new_position1[0], y=new_position1[1], z=zHeight, orientation_z=self.init_heading)
+        self._osg_model.move_node
+
     
 
     # this is the main function that is called after the node is constructed. you can do anything
