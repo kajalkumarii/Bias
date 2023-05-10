@@ -192,7 +192,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             new_position2 = np.array([self.init_x2, self.init_y2]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(init_heading + np.pi), np.sin(init_heading + np.pi)])
 
         self._osg_model.move_node(self._node_name1, x=new_position1[0], y=new_position1[1], z=zHeight, orientation_z=init_heading)
-        self._osg_model.move_node(self._node_name2, x=new_position2[0], y=new_position2[1], z=zHeight, orientation_z=init_heading)
+        self._osg_model.move_node(self._node_name2, x=new_position2[0], y=new_position2[1], z=zHeight, orientation_z=init_heading + np.pi)
+
 
         self.positions.append((new_position1, new_position2))
         self.counter += 1
