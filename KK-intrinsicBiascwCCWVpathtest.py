@@ -110,6 +110,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         angle += rotSpeed * self.currentDirection * dt
         orientation = angle + (np.pi/2 * self.currentDirection)
         self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z= orientation)
+        print("x: ", osgNodeX1, "y: ", osgNodeY1, "z: ", zHeight, "orientation: ", orientation)
         self.hide_node(self._node_name2)
 
     def rho_fish(self, fishx, fishy):
@@ -135,6 +136,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z=fishHeading)
         self._osg_model.move_node(self._node_name2, x=osgNodeX2, y=osgNodeY2, z=zHeight, orientation_z=fishHeading)
+        print("x: ", osgNodeX1, "y: ", osgNodeY1, "z: ", zHeight, "orientation: ", fishHeading)
+        print("x2: ", osgNodeX2, "y2: ", osgNodeY2, "z2: ", zHeight, "orientation2: ", fishHeading)
 
         angle += rotSpeed * self.currentDirection * dt
 
@@ -149,7 +152,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight)
         self._osg_model.move_node(self._node_name2, x=osgNodeX2, y=osgNodeY2, z=zHeight)
-
+        print("x: ", osgNodeX1, "y: ", osgNodeY1, "z: ", zHeight, "orientation: ", angle)
+        print("x2: ", osgNodeX2, "y2: ", osgNodeY2, "z2: ", zHeight, "orientation2: ", angle)
 
 
 
