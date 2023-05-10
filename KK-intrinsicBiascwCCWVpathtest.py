@@ -125,7 +125,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.init_y2 = fishy
 
         dt = 0.01
-        velocity = 0.05/100  # 5 cm/s
+        velocity = 0.05  # 5 cm/s
         distance_to_move = 0.5  # 50 cm
         max_steps = int(distance_to_move / (velocity * dt))
         zHeight = -0.03
@@ -160,7 +160,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     def move_in_mirrored_d_paths(self, fishx, fishy, fishHeading):
         zHeight = -0.03
         dt = 0.01  # Define dt as a constant value within the function
-        linear_speed = 0.0005  # 0.05 m/s converted to m/frame (assuming 100 fps)
+        linear_speed = 0.05  # 0.05 m/s converted to m/frame (assuming 100 fps)
         pathRadius = 0.05
 
         if not self.positions:
