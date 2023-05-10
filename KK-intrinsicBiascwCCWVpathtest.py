@@ -176,18 +176,18 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         new_position1 = None
         new_position2 = None
 
-        if dist_travelled < 0.05:
+        if dist_travelled <= 0.05:
             new_position1 = np.array([self.init_x1, self.init_y1]) + dist_travelled * np.array([np.cos(heading), np.sin(heading)])
             new_position2 = np.array([self.init_x2, self.init_y2]) + dist_travelled * np.array([np.cos(heading), np.sin(heading)])
 
-        elif dist_travelled < 0.05 + np.pi * pathRadius:
+        elif dist_travelled <= 0.05 + np.pi * pathRadius:
             circle_angle = (dist_travelled - 0.05) / pathRadius
             new_position1 = np.array([self.init_x1, self.init_y1]) + np.array([0.05 * np.cos(heading) + pathRadius * (np.cos(heading) - np.cos(heading + circle_angle)),
                                                                                 0.05 * np.sin(heading) + pathRadius * (np.sin(heading) - np.sin(heading + circle_angle))])
             new_position2 = np.array([self.init_x2, self.init_y2]) + np.array([0.05 * np.cos(heading) + pathRadius * (np.cos(heading) - np.cos(heading - circle_angle)),
                                                                                 0.05 * np.sin(heading) + pathRadius * (np.sin(heading) - np.sin(heading - circle_angle))])
 
-        elif dist_travelled < 0.05 + np.pi * pathRadius + 0.05:
+        else:  # dist_travelled > 0.05 + np.pi * pathRadius
             new_position1 = np.array([self.init_x1, self.init_y1]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(heading + np.pi), np.sin(heading + np.pi)])
             new_position2 = np.array([self.init_x2, self.init_y2]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(heading + np.pi), np.sin(heading + np.pi)])
 
