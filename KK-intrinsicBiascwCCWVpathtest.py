@@ -301,6 +301,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                         if self.currentStim == 1:
                             self.currentStim = 1
                             print("currentStim: single VF", self.currentStim)
+                            angle += rotSpeed * self.currentDirection * dt
                             self.move_in_circle(0.08,angle,rotSpeed=np.float64(0.00625 * np.pi))
                             self.stimTrialFRAME += 1
 
@@ -310,6 +311,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
                             if rho_fish > rho:
                                 print("fish is beyond radius", rho_fish)
+                                angle += rotSpeed * self.currentDirection * dt
                                 self.move_in_circle(0.02,angle,rotSpeed=np.float64(0.025 * np.pi))
 
                                 self.stimTrialFRAME += 1
@@ -317,6 +319,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                                 print("fish is within radius", rho_fish)
                                 print("currentStim: parallel pair VF", self.currentStim)
 
+                                angle += rotSpeed * self.currentDirection * dt
                                 self.move_in_diverging_path(angle, rotSpeed=np.float64(0.025 * np.pi), centerX=fishx, centerY=fishy)
                                 self.counter += 1
                                 self.positions.append((fishx, fishy))
