@@ -117,9 +117,12 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         rho_fish = np.sqrt(fishx**2+fishy**2)
         return rho_fish
     
-    def move_in_diverging_path(self, centerX, centerY):
+    def move_in_diverging_path(self, fishx, fishy):
         if not self.positions:
-            return
+            self.init_x1 = fishx
+            self.init_y1 = fishy
+            self.init_x2 = fishx
+            self.init_y2 = fishy
 
         dt = 0.01
         velocity = 0.05  # 5 cm/s
@@ -132,7 +135,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.hide_node(self._node_name2)
             return
 
-        fishHeading = np.arctan2(centerY, centerX)
+        fishHeading = np.arctan2(fishy, fishx)
 
         # Calculate the angle between the real fish and each virtual fish
         angle1 = fishHeading - np.pi / 6
@@ -143,8 +146,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         velocity_vector2 = np.array([velocity * np.cos(angle2), velocity * np.sin(angle2)])
 
         # Update the position of the virtual fish based on their velocity vectors and time step
-        new_position1 = np.array([centerX, centerY]) + velocity_vector1 * dt
-        new_position2 = np.array([centerX, centerY]) + velocity_vector2 * dt
+        new_position1 = np.array([self.init_x1, self.init_y1]) + self.counter * dt * velocity_vector1
+        new_position2 = np.array([self.init_x2, self.init_y2]) + self.counter * dt * velocity_vector2
 
         # Move the virtual fish to their new positions
         self._osg_model.move_node(self._node_name1, x=new_position1[0], y=new_position1[1], z=zHeight, orientation_z=angle1)
@@ -152,45 +155,40 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         self.counter += 1
 
-    def move_in_mirrored_d_paths(self, fishx, fishy, fishHeading, dt, stimTrialFRAME):
+
+
+    def move_in_mirrored_d_paths(self, fishx, fishy, fishHeading):
         zHeight = -0.03
+        dt = 0.01  # Define dt as a constant value within the function
         linear_speed = 5 / 100  # 5 cm/s converted to m/frame (assuming 100 fps)
         pathRadius = 0.05
 
-        # Calculate the initial positions of virtual fish
-        osgNodeX1 = fishx + 0.01 * np.cos(fishHeading)
-        osgNodeY1 = fishy + 0.01 * np.sin(fishHeading)
-        osgNodeX2 = fishx + 0.01 * np.cos(fishHeading) + 0.09 * np.cos(fishHeading + 90 * np.pi / 180)
-        osgNodeY2 = fishy + 0.01 * np.sin(fishHeading) + 0.09 * np.sin(fishHeading + 90 * np.pi / 180)
+        if not self.positions:
+            self.init_x1 = fishx + 0.01 * np.cos(fishHeading)
+            self.init_y1 = fishy + 0.01 * np.sin(fishHeading)
+            self.init_x2 = fishx + 0.01 * np.cos(fishHeading) + 0.09 * np.cos(fishHeading + 90 * np.pi / 180)
+            self.init_y2 = fishy + 0.01 * np.sin(fishHeading) + 0.09 * np.sin(fishHeading + 90 * np.pi / 180)
+            self.init_heading = fishHeading
 
-        # Calculate the distance travelled in the current frame
-        dist_travelled = stimTrialFRAME * linear_speed
+        dist_travelled = self.counter * dt * linear_speed
 
-        # Virtual fish move in a straight line for 8 cm
         if dist_travelled < 0.08:
-            osgNodeX1 += dist_travelled * np.cos(fishHeading)
-            osgNodeY1 += dist_travelled * np.sin(fishHeading)
-            osgNodeX2 += dist_travelled * np.cos(fishHeading)
-            osgNodeY2 += dist_travelled * np.sin(fishHeading)
+            new_position1 = np.array([self.init_x1, self.init_y1]) + dist_travelled * np.array([np.cos(self.init_heading), np.sin(self.init_heading)])
+            new_position2 = np.array([self.init_x2, self.init_y2]) + dist_travelled * np.array([np.cos(self.init_heading), np.sin(self.init_heading)])
 
-        # Virtual fish move in half circle (D-shape path)
         elif dist_travelled < 0.08 + np.pi * pathRadius:
             circle_angle = (dist_travelled - 0.08) / pathRadius
-            osgNodeX1 += 0.08 * np.cos(fishHeading) + pathRadius * (np.cos(fishHeading) - np.cos(fishHeading + circle_angle))
-            osgNodeY1 += 0.08 * np.sin(fishHeading) + pathRadius * (np.sin(fishHeading) - np.sin(fishHeading + circle_angle))
-            osgNodeX2 += 0.08 * np.cos(fishHeading) + pathRadius * (np.cos(fishHeading) - np.cos(fishHeading - circle_angle))
-            osgNodeY2 += 0.08 * np.sin(fishHeading) + pathRadius * (np.sin(fishHeading) - np.sin(fishHeading - circle_angle))
+            new_position1 = np.array([self.init_x1, self.init_y1]) + np.array([0.08 * np.cos(self.init_heading) + pathRadius * (np.cos(self.init_heading) - np.cos(self.init_heading + circle_angle)),
+                                                                                0.08 * np.sin(self.init_heading) + pathRadius * (np.sin(self.init_heading) - np.sin(self.init_heading + circle_angle))])
+            new_position2 = np.array([self.init_x2, self.init_y2]) + np.array([0.08 * np.cos(self.init_heading) + pathRadius * (np.cos(self.init_heading) - np.cos(self.init_heading - circle_angle)),
+                                                                                0.08 * np.sin(self.init_heading) + pathRadius * (np.sin(self.init_heading) - np.sin(self.init_heading - circle_angle))])
 
-        # Virtual fish move in a straight line back to the initial positions
         elif dist_travelled < 0.08 + np.pi * pathRadius + 0.08:
-            osgNodeX1 += (dist_travelled - np.pi * pathRadius) * np.cos(fishHeading + np.pi)
-            osgNodeY1 += (dist_travelled - np.pi * pathRadius) * np.sin(fishHeading + np.pi)
-            osgNodeX2 += (dist_travelled - np.pi * pathRadius) * np.cos(fishHeading + np.pi)
-            osgNodeY2 += (dist_travelled - np.pi * pathRadius) * np.sin(fishHeading + np.pi)
+            new_position1 = np.array([self.init_x1, self.init_y1]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(self.init_heading + np.pi), np.sin(self.init_heading + np.pi)])
+            new_position2 = np.array([self.init_x2, self.init_y2]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(self.init_heading + np.pi), np.sin(self.init_heading + np.pi)])
 
-        # Move the virtual fish nodes
-        self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z=fishHeading)
-        self._osg_model.move_node(self._node_name2, x=osgNodeX2, y=osgNodeY2, z=zHeight, orientation_z=fishHeading)
+        self._osg_model.move_node(self._node_name1, x=new_position1[0], y=new_position1[1], z=zHeight, orientation_z=self.init_heading)
+    
 
     # this is the main function that is called after the node is constructed. you can do anything
     # you wish in here, but typically this is where you would dynamically change the virtual
@@ -343,35 +341,32 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
                             if rho_fish > rho:
                                 print("fish is beyond radius", rho_fish)
-                                rotSpeed=np.float64(0.025 * np.pi)
+                                rotSpeed = np.float64(0.025 * np.pi)
                                 angle += rotSpeed * self.currentDirection * dt
-                                self.move_in_circle(0.02,angle,rotSpeed)
+                                self.move_in_circle(0.02, angle, rotSpeed)
 
                                 self.stimTrialFRAME += 1
                             else:
                                 print("fish is within radius", rho_fish)
                                 print("currentStimType: parallel pair VF", self.currentStimType)
-                                self.move_in_diverging_path(centerX=fishx, centerY=fishy)
-                                self.counter += 1
+                                self.move_in_diverging_path(fishx, fishy)
                                 self.positions.append((fishx, fishy))
                                 self.stimTrialFRAME += 1
-
 
 
                         elif self.currentStimType == 3:
                             if rho_fish > rho:
                                 print("fish is beyond radius", rho_fish)
-                                rotSpeed=np.float64(0.025 * np.pi)
+                                rotSpeed = np.float64(0.025 * np.pi)
                                 angle += rotSpeed * self.currentDirection * dt
-                                self.move_in_circle(0.02,angle,rotSpeed)
+                                self.move_in_circle(0.02, angle, rotSpeed)
 
                                 self.stimTrialFRAME += 1
                             else:
                                 print("fish is within radius", rho_fish)
                                 print("currentStimType: MirroredD pair VF", self.currentStimType)
-                                fishHeading = - np.arctan2(fishy, fishx)
-                                self.move_in_mirrored_d_paths(fishx, fishy, fishHeading, dt, self.stimTrialFRAME)
-                                self.counter += 1
+                                fishHeading = -np.arctan2(fishy, fishx)
+                                self.move_in_mirrored_d_paths(fishx, fishy, fishHeading)
                                 self.positions.append((fishx, fishy))
                                 self.stimTrialFRAME += 1
 
