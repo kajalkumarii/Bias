@@ -168,6 +168,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.init_x2 = fishx + 0.01 * np.cos(fishHeading) + 0.09 * np.cos(fishHeading + 90 * np.pi / 180)
             self.init_y2 = fishy + 0.01 * np.sin(fishHeading) + 0.09 * np.sin(fishHeading + 90 * np.pi / 180)
             self.init_heading = fishHeading
+        else:
+            fishHeading = self.init_heading
 
         dist_travelled = self.counter * dt * linear_speed
 
@@ -175,22 +177,23 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         new_position2 = None
 
         if dist_travelled < 0.08:
-            new_position1 = np.array([self.init_x1, self.init_y1]) + dist_travelled * np.array([np.cos(self.init_heading), np.sin(self.init_heading)])
-            new_position2 = np.array([self.init_x2, self.init_y2]) + dist_travelled * np.array([np.cos(self.init_heading), np.sin(self.init_heading)])
+            new_position1 = np.array([self.init_x1, self.init_y1]) + dist_travelled * np.array([np.cos(fishHeading), np.sin(fishHeading)])
+            new_position2 = np.array([self.init_x2, self.init_y2]) + dist_travelled * np.array([np.cos(fishHeading), np.sin(fishHeading)])
 
         elif dist_travelled < 0.08 + np.pi * pathRadius:
             circle_angle = (dist_travelled - 0.08) / pathRadius
-            new_position1 = np.array([self.init_x1, self.init_y1]) + np.array([0.08 * np.cos(self.init_heading) + pathRadius * (np.cos(self.init_heading) - np.cos(self.init_heading + circle_angle)),
-                                                                                0.08 * np.sin(self.init_heading) + pathRadius * (np.sin(self.init_heading) - np.sin(self.init_heading + circle_angle))])
-            new_position2 = np.array([self.init_x2, self.init_y2]) + np.array([0.08 * np.cos(self.init_heading) + pathRadius * (np.cos(self.init_heading) - np.cos(self.init_heading - circle_angle)),
-                                                                                0.08 * np.sin(self.init_heading) + pathRadius * (np.sin(self.init_heading) - np.sin(self.init_heading - circle_angle))])
+            new_position1 = np.array([self.init_x1, self.init_y1]) + np.array([0.08 * np.cos(fishHeading) + pathRadius * (np.cos(fishHeading) - np.cos(fishHeading + circle_angle)),
+                                                                                0.08 * np.sin(fishHeading) + pathRadius * (np.sin(fishHeading) - np.sin(fishHeading + circle_angle))])
+            new_position2 = np.array([self.init_x2, self.init_y2]) + np.array([0.08 * np.cos(fishHeading) + pathRadius * (np.cos(fishHeading) - np.cos(fishHeading - circle_angle)),
+                                                                                0.08 * np.sin(fishHeading) + pathRadius * (np.sin(fishHeading) - np.sin(fishHeading - circle_angle))])
 
         elif dist_travelled < 0.08 + np.pi * pathRadius + 0.08:
-            new_position1 = np.array([self.init_x1, self.init_y1]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(self.init_heading + np.pi), np.sin(self.init_heading + np.pi)])
-            new_position2 = np.array([self.init_x2, self.init_y2]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(self.init_heading + np.pi), np.sin(self.init_heading + np.pi)])
+            new_position1 = np.array([self.init_x1, self.init_y1]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(fishHeading + np.pi), np.sin(fishHeading + np.pi)])
+            new_position2 = np.array([self.init_x2, self.init_y2]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(fishHeading + np.pi), np.sin(fishHeading + np.pi)])
+
 
         self._osg_model.move_node(self._node_name1, x=new_position1[0], y=new_position1[1], z=zHeight, orientation_z=self.init_heading)
-        self._osg_model.move_node
+        self._osg_model.move_node(self._node_name2, x=new_position2[0], y=new_position2[1], z=zHeight, orientation_z=self.init_heading)
 
     
 
