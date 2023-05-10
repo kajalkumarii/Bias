@@ -238,16 +238,16 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         fps = 100
         r = rospy.Rate(fps)
         
-        self.noStimDurPreExp = 2* fps
-        self.noStimDurPostExp = 5* fps
+        self.noStimDurPreExp = 3*60* fps
+        self.noStimDurPostExp = 3*60* fps
         self.noStimDurPreExpComplete = False
         self.noStimDurPostExpComplete = False
         self.noStimDurPreExpFRAME = 0
         self.noStimDurPostExpFRAME = 0
         self.allStimComplete = False
        
-        self.stimTrialDur = 6*fps
-        self.interStimDur = 3*fps
+        self.stimTrialDur = 2*60*fps
+        self.interStimDur = 0.5*60*fps
 
         self.stimTrialCount = 20
         self.stimTrials = [random.randint(1,3) for i in range(self.stimTrialCount)]
@@ -399,10 +399,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
                     if self.currentStimTrial > self.stimTrialCount:
                         break
-
-                             
-
-                            
+      
             
             # save all data
             self.log.realtime = timing
