@@ -239,7 +239,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.noStimDurPostExpFRAME = 0
         self.allStimComplete = False
        
-        self.stimTrialDur = 2*fps
+        self.stimTrialDur = 10*fps
         self.interStimDur = 0.5*fps
 
         self.stimTrialCount = 20
