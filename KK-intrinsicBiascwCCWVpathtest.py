@@ -164,7 +164,41 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
 
 
-    def move_in_mirrored_d_paths(self, fishx, fishy, fishHeading):
+    # def move_in_mirrored_d_paths(self, fishx, fishy, fishHeading):
+    #     zHeight = -0.03
+    #     dt = 0.01 
+    #     linear_speed = 0.05 
+    #     pathRadius = 0.05
+    #     if not self.positions:
+    #         self.init_x1 = -0.02
+    #         self.init_y1 = 0
+    #         self.init_x2 = 0
+    #         self.init_y2 = 0.02
+    #         heading = fishHeading
+    #     else:
+    #         heading = fishHeading
+    #     dist_travelled = self.counter * dt * linear_speed
+    #     new_position1 = None
+    #     new_position2 = None
+    #     if dist_travelled <= 0.05:
+    #         new_position1 = np.array([self.init_x1, self.init_y1]) + dist_travelled * np.array([np.cos(heading), np.sin(heading)])
+    #         new_position2 = np.array([self.init_x2, self.init_y2]) + dist_travelled * np.array([np.cos(heading), np.sin(heading)])
+    #     elif dist_travelled <= 0.05 + np.pi * pathRadius:
+    #         circle_angle = (dist_travelled - 0.05) / pathRadius
+    #         new_position1 = np.array([self.init_x1, self.init_y1]) + np.array([0.05 * np.cos(heading) + pathRadius * (np.cos(heading) - np.cos(heading + circle_angle)),
+    #                                                                         0.05 * np.sin(heading) + pathRadius * (np.sin(heading) - np.sin(heading + circle_angle))])
+    #         new_position2 = np.array([self.init_x2, self.init_y2]) + np.array([0.05 * np.cos(heading) + pathRadius * (np.cos(heading) - np.cos(heading - circle_angle)),
+    #                                                                         0.05 * np.sin(heading) + pathRadius * (np.sin(heading) - np.sin(heading - circle_angle))])
+    #     else: 
+    #         new_position1 = np.array([self.init_x1, self.init_y1]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(heading + np.pi), np.sin(heading + np.pi)])
+    #         new_position2 = np.array([self.init_x2, self.init_y2]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(heading + np.pi), np.sin(heading + np.pi)])
+    #     self._osg_model.move_node(self._node_name1, x=new_position1[0], y=new_position1[1], z=zHeight, orientation_z=heading)
+    #     self._osg_model.move_node(self._node_name2, x=new_position2[0], y=new_position2[1], z=zHeight, orientation_z=heading)
+
+    #     self.positions.append((new_position1, new_position2))
+    #     self.counter += 1
+
+    def move_in_mirrored_d_paths(self):
         zHeight = -0.03
         dt = 0.01 
         linear_speed = 0.05 
@@ -174,29 +208,25 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.init_y1 = 0
             self.init_x2 = 0
             self.init_y2 = 0.02
-            heading = fishHeading
-        else:
-            heading = fishHeading
         dist_travelled = self.counter * dt * linear_speed
         new_position1 = None
         new_position2 = None
         if dist_travelled <= 0.05:
-            new_position1 = np.array([self.init_x1, self.init_y1]) + dist_travelled * np.array([np.cos(heading), np.sin(heading)])
-            new_position2 = np.array([self.init_x2, self.init_y2]) + dist_travelled * np.array([np.cos(heading), np.sin(heading)])
+            new_position1 = np.array([self.init_x1, self.init_y1]) + dist_travelled * np.array([1, 0])
+            new_position2 = np.array([self.init_x2, self.init_y2]) + dist_travelled * np.array([1, 0])
         elif dist_travelled <= 0.05 + np.pi * pathRadius:
             circle_angle = (dist_travelled - 0.05) / pathRadius
-            new_position1 = np.array([self.init_x1, self.init_y1]) + np.array([0.05 * np.cos(heading) + pathRadius * (np.cos(heading) - np.cos(heading + circle_angle)),
-                                                                            0.05 * np.sin(heading) + pathRadius * (np.sin(heading) - np.sin(heading + circle_angle))])
-            new_position2 = np.array([self.init_x2, self.init_y2]) + np.array([0.05 * np.cos(heading) + pathRadius * (np.cos(heading) - np.cos(heading - circle_angle)),
-                                                                            0.05 * np.sin(heading) + pathRadius * (np.sin(heading) - np.sin(heading - circle_angle))])
+            new_position1 = np.array([self.init_x1 + 0.05, self.init_y1]) + pathRadius * np.array([-np.sin(circle_angle), np.cos(circle_angle)])
+            new_position2 = np.array([self.init_x2 + 0.05, self.init_y2]) + pathRadius * np.array([np.sin(circle_angle), -np.cos(circle_angle)])
         else: 
-            new_position1 = np.array([self.init_x1, self.init_y1]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(heading + np.pi), np.sin(heading + np.pi)])
-            new_position2 = np.array([self.init_x2, self.init_y2]) + (dist_travelled - np.pi * pathRadius) * np.array([np.cos(heading + np.pi), np.sin(heading + np.pi)])
-        self._osg_model.move_node(self._node_name1, x=new_position1[0], y=new_position1[1], z=zHeight, orientation_z=heading)
-        self._osg_model.move_node(self._node_name2, x=new_position2[0], y=new_position2[1], z=zHeight, orientation_z=heading)
+            new_position1 = np.array([self.init_x1 - 0.05, self.init_y1]) + (dist_travelled - (np.pi * pathRadius + 0.05)) * np.array([-1, 0])
+            new_position2 = np.array([self.init_x2 - 0.05, self.init_y2]) + (dist_travelled - (np.pi * pathRadius + 0.05)) * np.array([-1, 0])
+        self._osg_model.move_node(self._node_name1, x=new_position1[0], y=new_position1[1], z=zHeight)
+        self._osg_model.move_node(self._node_name2, x=new_position2[0], y=new_position2[1], z=zHeight)
 
         self.positions.append((new_position1, new_position2))
         self.counter += 1
+
 
         
 
@@ -364,20 +394,12 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
 
                         elif self.currentStimType == 3:
-                            if rho_fish > rho:
-                                print("fish is beyond radius", rho_fish)
-                                rotSpeed = np.float64(0.025 * np.pi)
-                                angle += rotSpeed * self.currentDirection * dt
-                                self.move_in_circle(0.02, angle, rotSpeed)
+                            print("currentStimType: MirroredD pair VF", self.currentStimType)
+                            # fishHeading = -np.arctan2(fishy, fishx)
+                            self.move_in_mirrored_d_paths()
+                            # self.positions.append((fishx, fishy))
+                            self.stimTrialFRAME += 1
 
-                                self.stimTrialFRAME += 1
-                            else:
-                                print("fish is within radius", rho_fish)
-                                print("currentStimType: MirroredD pair VF", self.currentStimType)
-                                fishHeading = -np.arctan2(fishy, fishx)
-                                self.move_in_mirrored_d_paths(fishx, fishy, fishHeading)
-                                self.positions.append((fishx, fishy))
-                                self.stimTrialFRAME += 1
 
 
                                     # Check if the current trial is finished
