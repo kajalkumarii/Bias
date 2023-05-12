@@ -238,16 +238,16 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         fps = 100
         r = rospy.Rate(fps)
         
-        self.noStimDurPreExp = 3*60* fps
-        self.noStimDurPostExp = 3*60* fps
+        self.noStimDurPreExp = 3* fps
+        self.noStimDurPostExp = 3* fps
         self.noStimDurPreExpComplete = False
         self.noStimDurPostExpComplete = False
         self.noStimDurPreExpFRAME = 0
         self.noStimDurPostExpFRAME = 0
         self.allStimComplete = False
        
-        self.stimTrialDur = 2*60*fps
-        self.interStimDur = 0.5*60*fps
+        self.stimTrialDur = 2*fps
+        self.interStimDur = 0.5*fps
 
         self.stimTrialCount = 20
         self.stimTrials = [random.randint(1,3) for i in range(self.stimTrialCount)]
@@ -272,7 +272,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         rho_fish = 0
 
         #assert XOR of stim trial complete and inter stim complete is true
-        assert self.stimTrialComplete ^ self.interStimComplete
 
         rho = 0.04, # radius threshold for the fish to be beyond in order to display the virtual fish
 
@@ -340,6 +339,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
             #         # RUN stim trial by changing the position of the virtual fish
                     if self.currentStimTrial < self.stimTrialCount:
+                        self.allStimComplete = False
                         self.currentDirection = self.stimDirections[self.currentStimTrial]
                         print("currentDirection: ", self.currentDirection)
 
@@ -398,6 +398,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                             print("currentStimTrial: ", self.currentStimTrial)   
 
                     if self.currentStimTrial > self.stimTrialCount:
+                        self.allStimComplete = True
                         break
       
             
@@ -415,8 +416,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.log.currentDirection = self.currentDirection
             self.log.currentStimType = self.currentStimType
             self.log.angle = angle
+            self.log.pathRadius = pathRadius
             self.log.zHeight = zHeight
-            self.log.noStimDurPostExpComplete = self.noStimDurPostExpComplete
             self.log.noStimDurPostExpFRAME = self.noStimDurPostExpFRAME
             self.log.noStimDurPostExp = self.noStimDurPostExp
             self.log.noStimDurPreExpComplete = self.noStimDurPreExpComplete
@@ -424,6 +425,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.log.stimTrialFRAME = self.stimTrialFRAME
             self.log.currentStimTrial = self.currentStimTrial
             self.log.stimTrialComplete = self.stimTrialComplete
+            self.log.stimTrialInititated = self.stimTrialInititated
+            self.log.interStimInitiated = self.interStimInitiated
             self.log.dt = dt
             self.log.rho_fish = rho_fish
             self.log.rotSpeed = rotSpeed
