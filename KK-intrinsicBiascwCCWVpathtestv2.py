@@ -99,6 +99,15 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     def show_node(self, node_name):
         self._osg_model.move_node(node_name, hidden=False)
 
+    def get_real_fish_position(self):
+        #  calculate the position of the real fish
+        #  return the position of the real fish
+        fishx = self.object_position.x
+        fishy = self.object_position.y
+        fishz = self.object_position.z
+
+        return (fishx, fishy, fishz)
+
     
     def get_stim_type(self, current_trial):
         # Return the stimulus type for the current trial. Assuming that current_trial is 1-based index,
@@ -112,13 +121,16 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         print("currentStimTrial: ", current_trial + 1)
 
         if stim_type == 1:
-            self.move_in_circle()
+            self.move_in_constant_speed_circle(pathRadius=0.08, angle=0)  # Assumes angle starts at 0
         elif stim_type == 2:
-            self.move_in_parallel()
+            self.move_back_and_forth(pathRadius=0.08, distance_between_fish=0.06, speed=0.05, t=0)  # Assume t starts at 0
         elif stim_type == 3:
-            self.move_in_mirrored_d_paths()
+            centers = [(-0.08, 0), (0, 0.08)]
+            self.move_in_circling_paths(pathRadius=0.05, angle=0, centers=centers)  # Assumes angle starts at 0
         elif stim_type == 4:
-            self.move_in_radius_with_real_fish()
+            real_fish_position = self.get_real_fish_position()  # Assuming you have a method to get real fish position
+            self.move_in_radius_with_real_fish(real_fish_position)
+
 
     # Stimuli 1: Virtual fish moving either clockwise or counterclockwise at a distance of 8 cm radius
     def move_in_constant_speed_circle(self, pathRadius, angle, clockwise=None):
