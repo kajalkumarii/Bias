@@ -113,9 +113,28 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         # Return a randomly chosen stimulus type in the range of 1 to 4
         return random.randint(1, 4)
     
-    def run_stimuli_trial(self, i):
+    # def run_stimuli_trial(self, i):
+    #     current_trial = (i - self.noStimDurPreExp) // (self.stimTrialDur + self.interStimDur)
+    #     stim_type = self.get_stim_type()
+    #     print("currentStimType: ", stim_type)
+    #     print("currentStimTrial: ", current_trial + 1)
+
+    #     if stim_type == 1:
+    #         self.move_in_constant_speed_circle(pathRadius=0.08, angle=0)  # Assumes angle starts at 0
+    #     elif stim_type == 2:
+    #         self.move_back_and_forth(pathRadius=0.08, distance_between_fish=0.06, speed=0.05, t=0)  # Assume t starts at 0
+    #     elif stim_type == 3:
+    #         centers = [(-0.08, 0), (0, 0.08)]
+    #         self.move_in_circling_paths(pathRadius=0.05, angle=0, centers=centers)  # Assumes angle starts at 0
+    #     elif stim_type == 4:
+    #         x = self.object_position.x
+    #         y = self.object_position.y
+    #         z = self.object_position.z
+    #         real_fish_position = (x, y, z)
+    #         self.move_in_radius_with_real_fish(real_fish_position)
+
+    def run_stimuli_trial(self, i, stim_type):
         current_trial = (i - self.noStimDurPreExp) // (self.stimTrialDur + self.interStimDur)
-        stim_type = self.get_stim_type()
         print("currentStimType: ", stim_type)
         print("currentStimTrial: ", current_trial + 1)
 
@@ -125,7 +144,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.move_back_and_forth(pathRadius=0.08, distance_between_fish=0.06, speed=0.05, t=0)  # Assume t starts at 0
         elif stim_type == 3:
             centers = [(-0.08, 0), (0, 0.08)]
-            self.move_in_circling_paths(pathRadius=0.05, angle=0, centers=centers)  # Assumes angle starts at 0
+            self.move_in_circling_paths(pathRadius=0.05, angle=[0, 0], centers=centers)  # Assumes angle starts at 0
         elif stim_type == 4:
             x = self.object_position.x
             y = self.object_position.y
@@ -277,8 +296,41 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.stimTrialFRAME = 0
         rho_fish = 0
 
+        # i = 0
+        # Time0 = time.time()
+
+        # while not rospy.is_shutdown():
+        #     i += 1
+        #     timing = time.time() - Time0
+        #     fishx = self.object_position.x
+        #     fishy = self.object_position.y
+        #     fishz = self.object_position.z
+
+        #     if i < self.noStimDurPreExp:
+        #         self.hide_node(self._node_name1)
+        #         self.hide_node(self._node_name2)
+        #         print("noStimDurPreExpFRAME: ", i)
+        #     elif i < (self.noStimDurPreExp + (self.stimTrialCount * (self.stimTrialDur + self.interStimDur))):
+        #         if i % (self.stimTrialDur + self.interStimDur) < self.stimTrialDur:
+        #             self.run_stimuli_trial(i)
+        #         else:
+        #             self.hide_node(self._node_name1)
+
+        #             self.hide_node(self._node_name2)
+        #             print("interStimFRAME: ", i)
+        #     else:
+        #         self.hide_node(self._node_name1)
+        #         self.hide_node(self._node_name2)
+        #         print("noStimDurPostExpFRAME: ", i)
+
+        #         if i >= (self.noStimDurPreExp + (self.stimTrialCount * (self.stimTrialDur + self.interStimDur)) + self.noStimDurPostExp):
+                    # break  # Experiment ends
+      
+
         i = 0
         Time0 = time.time()
+        current_trial = -1
+        stim_type = None
 
         while not rospy.is_shutdown():
             i += 1
@@ -292,11 +344,16 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 self.hide_node(self._node_name2)
                 print("noStimDurPreExpFRAME: ", i)
             elif i < (self.noStimDurPreExp + (self.stimTrialCount * (self.stimTrialDur + self.interStimDur))):
+                current_trial_new = (i - self.noStimDurPreExp) // (self.stimTrialDur + self.interStimDur)
+                if current_trial_new != current_trial:
+                    # We are in a new trial, so choose a new stimulus type
+                    stim_type = self.get_stim_type()
+                    current_trial = current_trial_new
+
                 if i % (self.stimTrialDur + self.interStimDur) < self.stimTrialDur:
-                    self.run_stimuli_trial(i)
+                    self.run_stimuli_trial(i, stim_type)
                 else:
                     self.hide_node(self._node_name1)
-                    
                     self.hide_node(self._node_name2)
                     print("interStimFRAME: ", i)
             else:
@@ -306,8 +363,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
                 if i >= (self.noStimDurPreExp + (self.stimTrialCount * (self.stimTrialDur + self.interStimDur)) + self.noStimDurPostExp):
                     break  # Experiment ends
-      
-            
+
             # save all data
             self.log.realtime = timing
             self.log.osgNodeX1 = osgNodeX1
