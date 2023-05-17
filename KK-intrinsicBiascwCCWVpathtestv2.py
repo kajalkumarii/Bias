@@ -167,6 +167,19 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self._osg_model.move_node(self._node_name2, x=x2, y=y2, z=zHeight)
 
     # Stimuli 3: Two virtual fish circling with a radius of 5cm and center (-0.08, 0) and (0, 0.08) respectively
+    # def move_in_circling_paths(self, pathRadius, angle, centers):
+    #     dt = 0.01
+    #     zHeight = -0.03
+    #     speed = 0.05
+    #     rotSpeed = speed / pathRadius
+
+    #     for i, center in enumerate(centers):
+    #         angle[i] += rotSpeed * dt
+    #         osgNodeX = center[0] + pathRadius * np.cos(angle[i])
+    #         osgNodeY = center[1] + pathRadius * np.sin(angle[i])
+    #         node_name = self._node_name1 if i == 0 else self._node_name2
+    #         self._osg_model.move_node(node_name, x=osgNodeX, y=osgNodeY, z=zHeight)
+
     def move_in_circling_paths(self, pathRadius, angle, centers):
         dt = 0.01
         zHeight = -0.03
@@ -174,11 +187,14 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         rotSpeed = speed / pathRadius
 
         for i, center in enumerate(centers):
+            if i >= len(angle):  # Check if angle list needs to be expanded
+                angle.append(0)  # Initialize angle for the new center
             angle[i] += rotSpeed * dt
             osgNodeX = center[0] + pathRadius * np.cos(angle[i])
             osgNodeY = center[1] + pathRadius * np.sin(angle[i])
             node_name = self._node_name1 if i == 0 else self._node_name2
             self._osg_model.move_node(node_name, x=osgNodeX, y=osgNodeY, z=zHeight)
+
 
         # Stimuli 4: Real fish inside radius of 10 cm triggers virtual fish to move in diagonal direction
     def move_in_radius_with_real_fish(self, real_fish_position, radius=0.10, virtual_fish_speed=0.05, duration=10):
