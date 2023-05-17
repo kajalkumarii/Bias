@@ -325,7 +325,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         elif stim_type == 2:
             path_length = 0.08
             pathRadius = path_length / 2
-            self.move_back_and_forth(pathRadius= pathRadius, distance_between_fish=0.06, t=0)
+            self.move_back_and_forth(t=0)
         elif stim_type == 3:
             centers = [(-0.08, 0), (0, 0.08)]
             self.move_in_circling_paths(pathRadius=0.05, centers= centers, direction=self.direction)
