@@ -120,11 +120,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.direction = random.choice([-1, 1])
 
         if stim_type == 1:
-            self.move_in_constant_speed_circle(pathRadius=0.08, direction=self.direction, center=(0, 0))
+            self.move_in_constant_speed_circle(pathRadius=0.08, direction=self.direction, center=(0,0), angle=self.angle1, node_name=self._node_name1)
         elif stim_type == 2:
-            path_length = 0.08
-            pathRadius = path_length / 2
-            self.move_back_and_forth(t=4)
+            self.move_back_and_forth()
         elif stim_type == 3:
             centers = [(-0.08, 0), (0, 0.08)]
             self.move_in_circling_paths(pathRadius=0.05, centers= centers, direction=self.direction)
@@ -136,20 +134,19 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.move_in_radius_with_real_fish()#real_fish_position, direction=self.direction)
 
 
-    def move_in_constant_speed_circle(self, pathRadius, direction, center):
+    def move_in_constant_speed_circle(self, pathRadius, direction, center, angle, node_name):
         dt = 0.01  # time step
         zHeight = -0.03  # height of the center of the circle above the table
         speed = 0.05
 
         rotSpeed = speed / pathRadius * direction  # angular speed in rad/s
-        self.angle1 += rotSpeed * dt  # Update angle based on angular speed
-        osgX1 = center[0] + pathRadius * np.cos(self.angle1)  # x position of the node
-        osgY1 = center[1] + pathRadius * np.sin(self.angle1)  # y position of the node
-        orientation = self.angle1 + (np.pi / 2 * direction)  # calculate orientation
-        self._osg_model.move_node(self._node_name1, x=osgX1, y=osgY1, z=zHeight, orientation_z=orientation)
-        self.hide_node(self._node_name2)  # hide node 2
-        print("x: ", osgX1, "y: ", osgY1, "z: ", zHeight, "orientation: ", orientation)
-        return rotSpeed
+        angle += rotSpeed * dt  # Update angle based on angular speed
+        osgX = center[0] + pathRadius * np.cos(angle)  # x position of the node
+        osgY = center[1] + pathRadius * np.sin(angle)  # y position of the node
+        orientation = angle + (np.pi / 2 * direction)  # calculate orientation
+        self._osg_model.move_node(node_name, x=osgX, y=osgY, z=zHeight, orientation_z=orientation)
+        print("x: ", osgX, "y: ", osgY, "z: ", zHeight, "orientation: ", orientation)
+        return angle
 
     # Stimuli 2: Two virtual fish with a distance of 6 cm moving back and forth in a radius of 0.08 m
     def move_back_and_forth(self):
@@ -161,7 +158,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.t = 0  # Reset the time
 
         # Calculate the position
-        x_position = self.path_length / 2 + self.direction * self.speed * self.t
+        x_position = pathCenter + self.direction * self.speed * self.t
 
         # Position of the first fish
         osgX1 = x_position
@@ -181,7 +178,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         dt = 0.01
         zHeight = -0.03
         speed = 0.05
-        # rotSpeed = speed / pathRadius
+        rotSpeed = speed / pathRadius
 
         for i, center in enumerate(centers):
             if i == 0:
