@@ -521,7 +521,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             # self.log.noStimDurPreExpComplete = self.noStimDurPreExpComplete
             self.log.noStimDurPreExpFRAME = self.noStimDurPreExpFRAME
             self.log.stimTrialFRAME = self.stimTrialFRAME
-            self.log.currentStimTrial = self.currentStimTrial
+            # self.log.currentStimTrial = self.currentStimTrial
             self.log.stimTrialComplete = self.stimTrialComplete
             self.log.stimTrialInititated = self.stimTrialInititated
             # self.log.interStimInitiated = self.interStimInitiated
