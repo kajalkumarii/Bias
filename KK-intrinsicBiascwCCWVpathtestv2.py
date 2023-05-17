@@ -376,9 +376,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
    
     def move_in_circling_paths(self, pathRadius, centers, direction):
-        # dt = 0.01
-        # zHeight = -0.03
-        # speed = 0.05
+        dt = 0.01
+        zHeight = -0.03
+        speed = 0.05
         # rotSpeed = speed / pathRadius
 
         for i, center in enumerate(centers):
