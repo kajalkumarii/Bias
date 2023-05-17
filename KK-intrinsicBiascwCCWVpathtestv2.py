@@ -170,10 +170,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     #     print("x: ", osgNodeX1, "y: ", osgNodeY1, "z: ", zHeight)
 
         # Stimuli 1: Virtual fish moving either clockwise or counterclockwise at a distance of 8 cm radius
-    def move_in_constant_speed_circle(self, pathRadius=0.08, clockwise=None):
+    def move_in_constant_speed_circle(self, pathRadius=0.08, clockwise=None, speed=0.05):
         dt = 0.01  # time step
         zHeight = -0.03  # height of the center of the circle above the table
-        speed = 0.05  # 5cm/s
 
         if clockwise is None:
             # Choose a random direction if not provided
@@ -183,8 +182,12 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.angle += rotSpeed * dt  # Update angle based on angular speed
         osgNodeX1 = self.centerX + pathRadius * np.cos(self.angle)  # x position of the node
         osgNodeY1 = self.centerY + pathRadius * np.sin(self.angle)  # y position of the node
-        self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight)
-        print("x: ", osgNodeX1, "y: ", osgNodeY1, "z: ", zHeight)
+        orientation = self.angle + (np.pi / 2 * clockwise)  # calculate orientation
+        self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight, orientation_z=orientation)
+        self.hide_node(self._node_name2)  # hide node 2
+        print("x: ", osgNodeX1, "y: ", osgNodeY1, "z: ", zHeight, "orientation: ", orientation)
+        return rotSpeed
+
 
 
     # Stimuli 2: Two virtual fish with a distance of 6 cm moving back and forth in a radius of 0.08 m
