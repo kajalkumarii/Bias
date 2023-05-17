@@ -310,13 +310,13 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.log.zHeight = zHeight
             self.log.noStimDurPostExpFRAME = self.noStimDurPostExpFRAME
             self.log.noStimDurPostExp = self.noStimDurPostExp
-            self.log.noStimDurPreExpComplete = self.noStimDurPreExpComplete
+            # self.log.noStimDurPreExpComplete = self.noStimDurPreExpComplete
             self.log.noStimDurPreExpFRAME = self.noStimDurPreExpFRAME
             self.log.stimTrialFRAME = self.stimTrialFRAME
             self.log.currentStimTrial = self.currentStimTrial
             self.log.stimTrialComplete = self.stimTrialComplete
             self.log.stimTrialInititated = self.stimTrialInititated
-            self.log.interStimInitiated = self.interStimInitiated
+            # self.log.interStimInitiated = self.interStimInitiated
             self.log.dt = dt
             self.log.rho_fish = rho_fish
             self.log.rotSpeed = rotSpeed
