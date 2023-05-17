@@ -363,7 +363,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self._osg_model.move_node(self._node_name1, x=osgX1, y=osgY1, z=zHeight)
         self._osg_model.move_node(self._node_name2, x=osgX2, y=osgY2, z=zHeight)
 
-    def move_in_circling_paths(self, pathRadius, centers):
+    def move_in_circling_paths(self, pathRadius, centers, direction):
         dt = 0.01
         zHeight = -0.03
         speed = 0.05
@@ -371,12 +371,12 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         for i, center in enumerate(centers):
             if i == 0:
-                self.angle1 += rotSpeed * dt * self.direction
+                self.angle1 += rotSpeed * dt * direction
                 osgNodeX = center[0] + pathRadius * np.cos(self.angle1)
                 osgNodeY = center[1] + pathRadius * np.sin(self.angle1)
                 node_name = self._node_name1 
             else:
-                self.angle2 += rotSpeed * dt * (-self.direction)
+                self.angle2 += rotSpeed * dt * (-direction)
                 osgNodeX = center[0] + pathRadius * np.cos(self.angle2)
                 osgNodeY = center[1] + pathRadius * np.sin(self.angle2)
                 node_name = self._node_name2
