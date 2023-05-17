@@ -120,7 +120,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.direction = random.choice([-1, 1])
 
         if stim_type == 1:
-            self.move_in_constant_speed_circle(pathRadius=0.08, direction=self.direction, center=(0,0), angle=self.angle1, node_name=self._node_name1)
+            self.angle1 = self.move_in_constant_speed_circle(pathRadius=0.08, direction=self.direction, center=(0,0), angle=self.angle1, node_name=self._node_name1)
         elif stim_type == 2:
             self.move_back_and_forth()
         elif stim_type == 3:
@@ -180,14 +180,20 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         speed = 0.05
         rotSpeed = speed / pathRadius
 
+        # for i, center in enumerate(centers):
+        #     if i == 0:
+        #         self.move_in_constant_speed_circle(pathRadius, direction, center)
+        #         node_name = self._node_name1 
+        #     else:
+        #         self.move_in_constant_speed_circle(pathRadius, -direction, center)
+        #         node_name = self._node_name2
+        #     self._osg_model.move_node(node_name, x=center[0], y=center[1], z=zHeight)
         for i, center in enumerate(centers):
             if i == 0:
-                self.move_in_constant_speed_circle(pathRadius, direction, center)
-                node_name = self._node_name1 
+                self.angle1 = self.move_in_constant_speed_circle(pathRadius, direction, center, self.angle1, self._node_name1)
             else:
-                self.move_in_constant_speed_circle(pathRadius, -direction, center)
-                node_name = self._node_name2
-            self._osg_model.move_node(node_name, x=center[0], y=center[1], z=zHeight)
+                self.angle2 = self.move_in_constant_speed_circle(pathRadius, -direction, center, self.angle2, self._node_name2)
+
 
 
     # Stimuli 4: Real fish inside radius of 10 cm triggers virtual fish to move in diagonal direction
