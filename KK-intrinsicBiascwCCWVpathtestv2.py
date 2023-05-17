@@ -383,7 +383,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self._osg_model.move_node(node_name, x=osgNodeX, y=osgNodeY, z=zHeight)
 
     # Stimuli 4: Real fish inside radius of 10 cm triggers virtual fish to move in diagonal direction
-    def move_in_radius_with_real_fish(self)#, real_fish_position, pathRadius=0.10, duration=10):
+    def move_in_radius_with_real_fish(self):#, real_fish_position, pathRadius=0.10, duration=10):
         print("stim4")
         # speed = 0.05
         # fish_direction = np.arctan2(real_fish_position[1], real_fish_position[0])  # calculate the direction of real fish
