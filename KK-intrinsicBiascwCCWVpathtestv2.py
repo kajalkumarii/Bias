@@ -393,7 +393,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.log.fishz = fishz
             # self.log.currentDirection = self.currentDirection
             self.log.currentStimType = self.currentStimType
-            self.log.angle = angle
+            self.log.angle = self.angle
             self.log.pathRadius = pathRadius
             self.log.zHeight = zHeight
             self.log.noStimDurPostExpFRAME = self.noStimDurPostExpFRAME
