@@ -109,10 +109,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     #     return (fishx, fishy, fishz)
 
     
-    def get_stim_type(self, current_trial):
-        # Return the stimulus type for the current trial. Assuming that current_trial is 1-based index,
-        # the method will return a value in range [1, 4]
-        return (current_trial - 1) % 4 + 1
+    def get_stim_type(self):
+        # Return a randomly chosen stimulus type in the range of 1 to 4
+        return random.randint(1, 4)
     
     def run_stimuli_trial(self, i):
         current_trial = (i - self.noStimDurPreExp) // (self.stimTrialDur + self.interStimDur)
