@@ -317,7 +317,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.direction = random.choice([-1, 1])
 
         if stim_type == 1:
-            self.move_in_constant_speed_circle(pathRadius=0.08, direction=self.direction, t=0)
+            self.move_in_constant_speed_circle(pathRadius=0.08, direction=self.direction)
         elif stim_type == 2:
             path_length = 0.08
             pathRadius = path_length / 2
