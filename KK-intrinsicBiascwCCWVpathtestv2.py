@@ -296,6 +296,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                     self.run_stimuli_trial(i)
                 else:
                     self.hide_node(self._node_name1)
+                    
                     self.hide_node(self._node_name2)
                     print("interStimFRAME: ", i)
             else:
