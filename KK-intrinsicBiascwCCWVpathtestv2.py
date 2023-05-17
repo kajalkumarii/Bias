@@ -328,7 +328,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             y = self.object_position.y
             z = self.object_position.z
             real_fish_position = (x, y, z)
-            self.move_in_radius_with_real_fish(real_fish_position, direction=self.direction)
+            self.move_in_radius_with_real_fish(real_fish_position)#, direction=self.direction)
 
     # Stimuli 1: Virtual fish moving either clockwise or counterclockwise at a distance of 8 cm radius
     def move_in_constant_speed_circle(self, pathRadius=0.08, clockwise=None, speed=0.05):
