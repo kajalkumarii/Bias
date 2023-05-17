@@ -138,7 +138,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         print("currentStimTrial: ", current_trial + 1)
 
         if stim_type == 1:
-            self.move_in_constant_speed_circle(pathRadius=0.08, angle=0)  # Assumes angle starts at 0
+            self.move_in_constant_speed_circle(pathRadius=0.08)  # Assumes angle starts at 0
         elif stim_type == 2:
             self.move_back_and_forth(pathRadius=0.08, distance_between_fish=0.06, speed=0.05, t=0)  # Assume t starts at 0
         elif stim_type == 3:
