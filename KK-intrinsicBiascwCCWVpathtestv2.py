@@ -99,14 +99,14 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     def show_node(self, node_name):
         self._osg_model.move_node(node_name, hidden=False)
 
-    def get_real_fish_position(self):
-        #  calculate the position of the real fish
-        #  return the position of the real fish
-        fishx = self.object_position.x
-        fishy = self.object_position.y
-        fishz = self.object_position.z
+    # def get_real_fish_position(self):
+    #     #  calculate the position of the real fish
+    #     #  return the position of the real fish
+    #     fishx = self.object_position.x
+    #     fishy = self.object_position.y
+    #     fishz = self.object_position.z
 
-        return (fishx, fishy, fishz)
+    #     return (fishx, fishy, fishz)
 
     
     def get_stim_type(self, current_trial):
@@ -128,7 +128,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             centers = [(-0.08, 0), (0, 0.08)]
             self.move_in_circling_paths(pathRadius=0.05, angle=0, centers=centers)  # Assumes angle starts at 0
         elif stim_type == 4:
-            real_fish_position = self.get_real_fish_position()  # Assuming you have a method to get real fish position
+            x = self.object_position.x
+            y = self.object_position.y
+            z = self.object_position.z
+            real_fish_position = (x, y, z)
             self.move_in_radius_with_real_fish(real_fish_position)
 
 
@@ -152,6 +155,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     # Stimuli 2: Two virtual fish with a distance of 6 cm moving back and forth in a radius of 0.08 m
     def move_back_and_forth(self, pathRadius, distance_between_fish, speed, t):
         zHeight = -0.03
+        speed = 0.05 # 5cm/s
         oscillation_frequency = speed / (2 * pathRadius)  # oscillation frequency in Hz
         angular_frequency = 2 * np.pi * oscillation_frequency  # angular frequency in rad/s
 
@@ -215,7 +219,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # initilize iteration & timing
         i = 0
-        Time0 = time.time()
         fishx=0
         fishy=0
         fishz=0
@@ -228,26 +231,20 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.centerY = 0
         zHeight = -0.03
         pathRadius = 0
-        
-        # speed= 0
-        # rotSpeed = 0
         rotSpeed = 0 #0.625 rad/s / 100 fps
         angle= 0
         
         dt = 0.01
-        # fishHeading = 0
         fps = 100
         r = rospy.Rate(fps)
         
         self.noStimDurPreExp = 3* fps
         self.noStimDurPostExp = 3* fps
-        self.noStimDurPreExpComplete = False
-        self.noStimDurPostExpComplete = False
         self.noStimDurPreExpFRAME = 0
         self.noStimDurPostExpFRAME = 0
         self.allStimComplete = False
        
-        self.stimTrialDur = 10*fps
+        self.stimTrialDur = 5*fps
         self.interStimDur = 0.5*fps
 
         self.stimTrialCount = 20
@@ -259,10 +256,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.currentStimTrial = 0
         self.stimTrialComplete = False
         self.stimTrialInititated = False
-        self.stimChangeComplete = True
 
         self.interStimComplete = True
-        self.interStimInitiated = False
         self.interStimFRAME = 0
         self.stimTrialFRAME = 0
         rho_fish = 0
