@@ -278,9 +278,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         osgNodeY2 = 0
         
         self.centerX = 0
-        self.centerY = 0
+        self.centerY = 0    
         zHeight = -0.03
-        pathRadius = 0
+        pathRadius = 0 #0.08
         rotSpeed = 0 #0.625 rad/s / 100 fps
         self.angle= 0
         
