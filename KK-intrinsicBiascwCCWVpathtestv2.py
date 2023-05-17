@@ -115,7 +115,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     
     def run_stimuli_trial(self, i):
         current_trial = (i - self.noStimDurPreExp) // (self.stimTrialDur + self.interStimDur)
-        stim_type = self.get_stim_type(current_trial)
+        stim_type = self.get_stim_type()
         print("currentStimType: ", stim_type)
         print("currentStimTrial: ", current_trial + 1)
 
