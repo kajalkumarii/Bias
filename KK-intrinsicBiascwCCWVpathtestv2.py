@@ -61,6 +61,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.positions = []
         self.angle1 = 0
         self.angle2 = 0
+        self.direction = 1  # direction of movement: 1 for forward, -1 for backward
+        self.path_length = 0.20  # path length in meters
+        self.distance_between_fish = 0.08  # distance between fish in meters
+        self.speed = 0.05  # speed in meters per second
 
         # StimulusOSGController makes it easier to control things in osg files
         self._osg_model = osg_utils.StimulusOSGController()
@@ -333,15 +337,30 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.move_in_radius_with_real_fish()#real_fish_position, direction=self.direction)
 
     # Stimuli 1: Virtual fish moving either clockwise or counterclockwise at a distance of 8 cm radius
-    def move_in_constant_speed_circle(self, pathRadius, direction):
+    # def move_in_constant_speed_circle(self, pathRadius, direction):
+    #     dt = 0.01  # time step
+    #     zHeight = -0.03  # height of the center of the circle above the table
+    #     speed= 0.05
+
+    #     rotSpeed = speed / pathRadius * direction  # angular speed in rad/s
+    #     self.angle1 += rotSpeed * dt  # Update angle based on angular speed
+    #     osgX1 = self.centerX + pathRadius * np.cos(self.angle1)  # x position of the node
+    #     osgY1 = self.centerY + pathRadius * np.sin(self.angle1)  # y position of the node
+    #     orientation = self.angle1 + (np.pi / 2 * direction)  # calculate orientation
+    #     self._osg_model.move_node(self._node_name1, x=osgX1, y=osgY1, z=zHeight, orientation_z=orientation)
+    #     self.hide_node(self._node_name2)  # hide node 2
+    #     print("x: ", osgX1, "y: ", osgY1, "z: ", zHeight, "orientation: ", orientation)
+    #     return rotSpeed
+
+    def move_in_constant_speed_circle(self, pathRadius, direction, center):
         dt = 0.01  # time step
         zHeight = -0.03  # height of the center of the circle above the table
-        speed= 0.05
+        speed = 0.05
 
         rotSpeed = speed / pathRadius * direction  # angular speed in rad/s
         self.angle1 += rotSpeed * dt  # Update angle based on angular speed
-        osgX1 = self.centerX + pathRadius * np.cos(self.angle1)  # x position of the node
-        osgY1 = self.centerY + pathRadius * np.sin(self.angle1)  # y position of the node
+        osgX1 = center[0] + pathRadius * np.cos(self.angle1)  # x position of the node
+        osgY1 = center[1] + pathRadius * np.sin(self.angle1)  # y position of the node
         orientation = self.angle1 + (np.pi / 2 * direction)  # calculate orientation
         self._osg_model.move_node(self._node_name1, x=osgX1, y=osgY1, z=zHeight, orientation_z=orientation)
         self.hide_node(self._node_name2)  # hide node 2
@@ -349,38 +368,75 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         return rotSpeed
 
     # Stimuli 2: Two virtual fish with a distance of 6 cm moving back and forth in a radius of 0.08 m
-    def move_back_and_forth(self, pathRadius, distance_between_fish, t):
+    def move_back_and_forth(self, t):
         zHeight = -0.03
-        speed = 0.05 # 5cm/s
-        oscillation_frequency = speed / (2 * pathRadius)  # oscillation frequency in Hz
-        angular_frequency = 2 * np.pi * oscillation_frequency  # angular frequency in rad/s
+        pathCenter = self.path_length / 2
+        if t * self.speed > self.path_length:
+            # If fish reached the end of the path, flip the direction
+            self.direction *= -1
+            t = 0
 
-        osgX1 = pathRadius * np.sin(angular_frequency * t)
+        x_position = pathCenter + self.direction * self.speed * t
+
+        # Position of the first fish
+        osgX1 = x_position
         osgY1 = 0
-        osgX2 = osgX1 + distance_between_fish
-        osgY2 = 0
+
+        # Position of the second fish
+        osgX2 = osgX1
+        osgY2 = self.distance_between_fish
 
         self._osg_model.move_node(self._node_name1, x=osgX1, y=osgY1, z=zHeight)
         self._osg_model.move_node(self._node_name2, x=osgX2, y=osgY2, z=zHeight)
 
+    # def move_back_and_forth(self, pathRadius, distance_between_fish, t):
+    #     zHeight = -0.03
+    #     speed = 0.05 # 5cm/s
+    #     oscillation_frequency = speed / (2 * pathRadius)  # oscillation frequency in Hz
+    #     angular_frequency = 2 * np.pi * oscillation_frequency  # angular frequency in rad/s
+
+    #     osgX1 = pathRadius * np.sin(angular_frequency * t)
+    #     osgY1 = 0
+    #     osgX2 = osgX1 + distance_between_fish
+    #     osgY2 = 0
+
+    #     self._osg_model.move_node(self._node_name1, x=osgX1, y=osgY1, z=zHeight)
+    #     self._osg_model.move_node(self._node_name2, x=osgX2, y=osgY2, z=zHeight)
+
+    # def move_in_circling_paths(self, pathRadius, centers, direction):
+    #     dt = 0.01
+    #     zHeight = -0.03
+    #     speed = 0.05
+    #     rotSpeed = speed / pathRadius
+
+    #     for i, center in enumerate(centers):
+    #         if i == 0:
+    #             self.angle1 += rotSpeed * dt * direction
+    #             osgNodeX = center[0] + pathRadius * np.cos(self.angle1)
+    #             osgNodeY = center[1] + pathRadius * np.sin(self.angle1)
+    #             node_name = self._node_name1 
+    #         else:
+    #             self.angle2 += rotSpeed * dt * (-direction)
+    #             osgNodeX = center[0] + pathRadius * np.cos(self.angle2)
+    #             osgNodeY = center[1] + pathRadius * np.sin(self.angle2)
+    #             node_name = self._node_name2
+    #         self._osg_model.move_node(node_name, x=osgNodeX, y=osgNodeY, z=zHeight)
+
     def move_in_circling_paths(self, pathRadius, centers, direction):
-        dt = 0.01
-        zHeight = -0.03
-        speed = 0.05
-        rotSpeed = speed / pathRadius
+        # dt = 0.01
+        # zHeight = -0.03
+        # speed = 0.05
+        # rotSpeed = speed / pathRadius
 
         for i, center in enumerate(centers):
             if i == 0:
-                self.angle1 += rotSpeed * dt * direction
-                osgNodeX = center[0] + pathRadius * np.cos(self.angle1)
-                osgNodeY = center[1] + pathRadius * np.sin(self.angle1)
+                self.move_in_constant_speed_circle(pathRadius, direction, center)
                 node_name = self._node_name1 
             else:
-                self.angle2 += rotSpeed * dt * (-direction)
-                osgNodeX = center[0] + pathRadius * np.cos(self.angle2)
-                osgNodeY = center[1] + pathRadius * np.sin(self.angle2)
+                self.move_in_constant_speed_circle(pathRadius, -direction, center)
                 node_name = self._node_name2
-            self._osg_model.move_node(node_name, x=osgNodeX, y=osgNodeY, z=zHeight)
+            self._osg_model.move_node(node_name, x=center[0], y=center[1], z=zHeight)
+
 
     # Stimuli 4: Real fish inside radius of 10 cm triggers virtual fish to move in diagonal direction
     def move_in_radius_with_real_fish(self):#, real_fish_position, pathRadius=0.10, duration=10):
