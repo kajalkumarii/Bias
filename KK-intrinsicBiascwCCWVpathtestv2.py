@@ -107,7 +107,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     #     fishz = self.object_position.z
 
     #     return (fishx, fishy, fishz)
-
     
     def get_stim_type(self):
         # Return a randomly chosen stimulus type in the range of 1 to 4
@@ -244,7 +243,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         else:
             print("Real fish is not within the radius of interest.")
     
-        
 
     # this is the main function that is called after the node is constructed. you can do anything
     # you wish in here, but typically this is where you would dynamically change the virtual
