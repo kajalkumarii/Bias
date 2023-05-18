@@ -174,16 +174,44 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
     #     # Increment time
     #     self.t += self.dt
+    # def move_back_and_forth(self):
+    #     zHeight = -0.03
+    #     pathCenter = self.path_length / 2
+    #     if self.t * self.speed > self.path_length:
+    #         # If fish reached the end of the path, flip the direction
+    #         self.direction *= -1
+    #         self.t = 0  # Reset the time
+
+    #     # Calculate the position
+    #     x_position = pathCenter + self.direction * self.speed * self.t
+
+    #     # Position of the first fish
+    #     osgX1 = x_position
+    #     osgY1 = 0
+
+    #     # Position of the second fish
+    #     osgX2 = osgX1
+    #     osgY2 = self.distance_between_fish
+
+    #     # Calculate the orientation
+    #     orientation = np.pi / 2 * (1 - self.direction)
+
+    #     self._osg_model.move_node(self._node_name1, x=osgX1, y=osgY1, z=zHeight, orientation_z=orientation)
+    #     self._osg_model.move_node(self._node_name2, x=osgX2, y=osgY2, z=zHeight, orientation_z=orientation)
+
+    #     # Increment time
+    #     self.t += self.dt
+
     def move_back_and_forth(self):
         zHeight = -0.03
         pathCenter = self.path_length / 2
-        if self.t * self.speed > self.path_length:
-            # If fish reached the end of the path, flip the direction
+        if abs(x_position - pathCenter) > (self.path_length / 2):
+            # If fish reached the end of the path, take a 180-degree turn
             self.direction *= -1
-            self.t = 0  # Reset the time
+            x_position = 2 * pathCenter - x_position
 
         # Calculate the position
-        x_position = pathCenter + self.direction * self.speed * self.t
+        x_position = 0.04 + self.direction * self.speed * self.t
 
         # Position of the first fish
         osgX1 = x_position
@@ -201,6 +229,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # Increment time
         self.t += self.dt
+
 
    
     def move_in_circling_paths(self, pathRadius, centers, direction):
