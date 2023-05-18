@@ -34,14 +34,16 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
     def __init__(self, args):
         # first chain up to the base class to allow it to parse the command line arguments
-        fishvr.experiment.Experiment.__init__(self, args, state=('osgX1', 'osgY1', 'osgX2','osgY2',\
+        fishvr.experiment.Experiment.__init__(self, args, state=( 'osgX1', 'osgY1', 'osgX2','osgY2',\
                                                                     'timing', 'fishx', 'fishy', 'fishz',\
-                                                                     'zHeight', 'pathRadius', 'orientation',\
-                                                                        'time_i', 'direction', 'current_trial',\
-                                                                    'interstim_end_frame','interstim_start_frame','stim_end_frame','stim_start_frame','current_trial_new','current_trial','stim_type'
-                                                                        'currentStimType','currentDirection', 'currentStimTrial',\
-                                                                             'speed', 'rotSpeed', 'angle', 'dt'
-                                                                                                        ))
+                                                                    'zHeight', 'pathRadius', 'orientation',\
+                                                                    'time_i', 'direction', 'current_trial',\
+                                                                    'angle1', 'angle2', 'rho_fish',\
+                                                                    'stimTrialFRAME', 'rotSpeed',\
+                                                                    'interstim_end_frame','interstim_start_frame',\
+                                                                    'stim_end_frame','stim_start_frame','current_trial_new',\
+                                                                    'stim_type','currentStimTrial',\
+                                                                    'speed'))
 
         # state has a very important meaning, it describes things which should be saved in the
         # resulting experimental log csv file. This log file is a magic object to which you assign
@@ -350,13 +352,13 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 print("noStimDurPostExpFRAME: ", i)
 
             # save all data
-            self.log.realtime = timing
+            self.log.time_i = i
+            self.log.timing = timing
             self.log.osgX1 = self.osgX1
             self.log.osgY1 = self.osgY1
             self.log.osgX2 = self.osgX2
             self.log.osgY2 = self.osgY2
             self.log.orientation = orientation
-            self.log.time_i = i
             self.log.fishx = fishx
             self.log.fishy = fishy
             self.log.fishz = fishz
@@ -377,7 +379,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.log.dt = dt
             self.log.rho_fish = rho_fish
             self.log.rotSpeed = rotSpeed
-            # self.log.fishHeading = fishHeading
 
             self.log.update()
 
