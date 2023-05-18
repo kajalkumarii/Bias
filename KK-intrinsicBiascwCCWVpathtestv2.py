@@ -308,10 +308,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         while not rospy.is_shutdown():
             i += 1
             timing = time.time() - Time0
-            osgX1 = self._osg_model.get_node_position(self._node_name1).x
-            osgY1 = self._osg_model.get_node_position(self._node_name1).y
-            osgX2 = self._osg_model.get_node_position(self._node_name2).x
-            osgY2 = self._osg_model.get_node_position(self._node_name2).y
+            osgX1 = self._osg_model.get_node_position(self._node_name1).osgX1
+            osgY1 = self._osg_model.get_node_position(self._node_name1).osgX1
+            osgX2 = self._osg_model.get_node_position(self._node_name2).osgX2
+            osgY2 = self._osg_model.get_node_position(self._node_name2).osgY2
             fishx = self.object_position.x
             fishy = self.object_position.y
             fishz = self.object_position.z
