@@ -181,10 +181,17 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         offset = 0.04  # Offset of 4cm in meters
         x_position = self.direction * self.speed * self.t
 
-        if abs(x_position) > self.path_length:
+        if x_position > self.path_length:
             # If fish has moved further than path_length, change direction and adjust x_position
             self.direction *= -1
-            x_position = x_position - self.direction * self.path_length
+            self.t = 0  # Reset time to start a new trajectory in opposite direction
+
+        elif x_position < 0:
+            # If fish has reached the beginning of the path, change direction and reset time
+            self.direction *= -1
+            self.t = 0  # Reset time to start a new trajectory in opposite direction
+
+        x_position = self.direction * self.speed * self.t
 
         # Position of the first fish
         osgX1 = x_position
@@ -202,6 +209,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # Increment time
         self.t += self.dt
+
 
 
    
