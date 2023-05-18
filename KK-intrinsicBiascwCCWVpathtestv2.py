@@ -313,6 +313,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         current_trial = -1
         stim_type = None
 
+
         while not rospy.is_shutdown():
             i += 1
             timing = time.time() - Time0
@@ -331,9 +332,17 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                     stim_type = self.get_stim_type()
                     current_trial = current_trial_new
 
-                if i % (self.stimTrialDur + self.interStimDur) < self.stimTrialDur:
+                # Calculate start and end frames for stimulus trial and inter-stimulus state
+                stim_start_frame = self.noStimDurPreExp + current_trial * (self.stimTrialDur + self.interStimDur)
+                stim_end_frame = stim_start_frame + self.stimTrialDur
+                interstim_start_frame = stim_end_frame
+                interstim_end_frame = interstim_start_frame + self.interStimDur
+
+                if stim_start_frame <= i < stim_end_frame:
+                    assert not (interstim_start_frame <= i < interstim_end_frame), "Inter-stimulus state is running during stimulus trial"
                     self.run_stimuli_trial(i, stim_type)
-                else:
+                elif interstim_start_frame <= i < interstim_end_frame:
+                    assert not (stim_start_frame <= i < stim_end_frame), "Stimulus trial is running during inter-stimulus state"
                     self.hide_node(self._node_name1)
                     self.hide_node(self._node_name2)
                     print("interStimFRAME: ", i)
@@ -341,6 +350,36 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 self.hide_node(self._node_name1)
                 self.hide_node(self._node_name2)
                 print("noStimDurPostExpFRAME: ", i)
+
+
+        # while not rospy.is_shutdown():
+        #     i += 1
+        #     timing = time.time() - Time0
+        #     fishx = self.object_position.x
+        #     fishy = self.object_position.y
+        #     fishz = self.object_position.z
+
+        #     if i < self.noStimDurPreExp:
+        #         self.hide_node(self._node_name1)
+        #         self.hide_node(self._node_name2)
+        #         print("noStimDurPreExpFRAME: ", i)
+        #     elif i < (self.noStimDurPreExp + (self.stimTrialCount * (self.stimTrialDur + self.interStimDur))):
+        #         current_trial_new = (i - self.noStimDurPreExp) // (self.stimTrialDur + self.interStimDur)
+        #         if current_trial_new != current_trial:
+        #             # We are in a new trial, so choose a new stimulus type
+        #             stim_type = self.get_stim_type()
+        #             current_trial = current_trial_new
+
+        #         if i % (self.stimTrialDur + self.interStimDur) < self.stimTrialDur:
+        #             self.run_stimuli_trial(i, stim_type)
+        #         else:
+        #             self.hide_node(self._node_name1)
+        #             self.hide_node(self._node_name2)
+        #             print("interStimFRAME: ", i)
+        #     else:
+        #         self.hide_node(self._node_name1)
+        #         self.hide_node(self._node_name2)
+        #         print("noStimDurPostExpFRAME: ", i)
 
             # save all data
             self.log.realtime = timing
