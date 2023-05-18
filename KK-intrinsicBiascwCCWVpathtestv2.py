@@ -180,52 +180,11 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         speed = 0.05
         rotSpeed = speed / pathRadius
 
-        # for i, center in enumerate(centers):
-        #     if i == 0:
-        #         self.move_in_constant_speed_circle(pathRadius, direction, center)
-        #         node_name = self._node_name1 
-        #     else:
-        #         self.move_in_constant_speed_circle(pathRadius, -direction, center)
-        #         node_name = self._node_name2
-        #     self._osg_model.move_node(node_name, x=center[0], y=center[1], z=zHeight)
         for i, center in enumerate(centers):
             if i == 0:
                 self.angle1 = self.move_in_constant_speed_circle(pathRadius, direction, center, self.angle1, self._node_name1)
             else:
                 self.angle2 = self.move_in_constant_speed_circle(pathRadius, -direction, center, self.angle2, self._node_name2)
-
-
-
-    # Stimuli 4: Real fish inside radius of 10 cm triggers virtual fish to move in diagonal direction
-    def move_in_radius_with_real_fish(self):#, real_fish_position, pathRadius=0.10, duration=10):
-        print("stim4")
-        # speed = 0.05
-        # fish_direction = np.arctan2(real_fish_position[1], real_fish_position[0])  # calculate the direction of real fish
-        # distance_to_real_fish = np.hypot(real_fish_position[0], real_fish_position[1])  # calculate the distance to real fish
-
-        # # check if the real fish is within the defined radius
-        # if distance_to_real_fish <= pathRadius:
-        #     # calculate positions for virtual fish
-        #     virtual_fish_positions = []
-        #     for i in range(2):
-        #         angle = fish_direction + (i * np.pi / 4)  # 1 cm diagonal distance in fish direction
-        #         virtual_fish_positions.append([
-        #             real_fish_position[0] + np.cos(angle),
-        #             real_fish_position[1] + np.sin(angle),
-        #             -0.03
-        #         ])
-
-        #     # move virtual fish in their diagonal direction at 5cm/s for duration time
-        #     start_time = time.time()
-        #     while (time.time() - start_time) < duration:
-        #         for i in range(2):
-        #             virtual_fish_positions[i][0] += speed * np.cos(fish_direction) * (time.time() - start_time)
-        #             virtual_fish_positions[i][1] += speed * np.sin(fish_direction) * (time.time() - start_time)
-        #             node_name = self._node_name1 if i == 0 else self._node_name2
-        #             self._osg_model.move_node(node_name, x=virtual_fish_positions[i][0], y=virtual_fish_positions[i][1], z=virtual_fish_positions[i][2])
-        #         time.sleep(0.01)
-        # else:
-        #     print("Real fish is not within the radius of interest.")
     
 
     # this is the main function that is called after the node is constructed. you can do anything
@@ -358,101 +317,3 @@ def main():
 
 if __name__=='__main__':
     main()
-
-
-
-    # def run_stimuli_trial(self, i):
-    #     current_trial = (i - self.noStimDurPreExp) // (self.stimTrialDur + self.interStimDur)
-    #     stim_type = self.get_stim_type()
-    #     print("currentStimType: ", stim_type)
-    #     print("currentStimTrial: ", current_trial + 1)
-
-    #     if stim_type == 1:
-    #         self.move_in_constant_speed_circle(pathRadius=0.08, angle=0)  # Assumes angle starts at 0
-    #     elif stim_type == 2:
-    #         self.move_back_and_forth(pathRadius=0.08, distance_between_fish=0.06, speed=0.05, t=0)  # Assume t starts at 0
-    #     elif stim_type == 3:
-    #         centers = [(-0.08, 0), (0, 0.08)]
-    #         self.move_in_circling_paths(pathRadius=0.05, angle=0, centers=centers)  # Assumes angle starts at 0
-    #     elif stim_type == 4:
-    #         x = self.object_position.x
-    #         y = self.object_position.y
-    #         z = self.object_position.z
-    #         real_fish_position = (x, y, z)
-    #         self.move_in_radius_with_real_fish(real_fish_position)
-
-    
-    # def get_real_fish_position(self):
-    #     #  calculate the position of the real fish
-    #     #  return the position of the real fish
-    #     fishx = self.object_position.x
-    #     fishy = self.object_position.y
-    #     fishz = self.object_position.z
-
-    #     return (fishx, fishy, fishz)
-    
-
-    # # Stimuli 1: Virtual fish moving either clockwise or counterclockwise at a distance of 8 cm radius
-    # def move_in_constant_speed_circle(self, pathRadius, angle, clockwise=None):
-    #     dt = 0.01  # time step
-    #     zHeight = -0.03  # height of the center of the circle above the table
-    #     speed = 0.05  # 5cm/s
-
-    #     if clockwise is None:
-    #         # Choose a random direction if not provided
-    #         clockwise = random.choice([-1, 1])
-
-    #     rotSpeed = speed / pathRadius * clockwise  # angular speed in rad/s
-    #     angle += rotSpeed * dt  # Update angle based on angular speed
-    #     osgNodeX1 = self.centerX + pathRadius * np.cos(angle)  # x position of the node
-    #     osgNodeY1 = self.centerY + pathRadius * np.sin(angle)  # y position of the node
-    #     self._osg_model.move_node(self._node_name1, x=osgNodeX1, y=osgNodeY1, z=zHeight)
-    #     print("x: ", osgNodeX1, "y: ", osgNodeY1, "z: ", zHeight)
-
-    
-    # Stimuli 3: Two virtual fish circling with a radius of 5cm and center (-0.08, 0) and (0, 0.08) respectively
-    # def move_in_circling_paths(self, pathRadius, angle, centers):
-    #     dt = 0.01
-    #     zHeight = -0.03
-    #     speed = 0.05
-    #     rotSpeed = speed / pathRadius
-
-    #     for i, center in enumerate(centers):
-    #         angle[i] += rotSpeed * dt
-    #         osgNodeX = center[0] + pathRadius * np.cos(angle[i])
-    #         osgNodeY = center[1] + pathRadius * np.sin(angle[i])
-    #         node_name = self._node_name1 if i == 0 else self._node_name2
-    #         self._osg_model.move_node(node_name, x=osgNodeX, y=osgNodeY, z=zHeight)
-
-
-
-        # i = 0
-        # Time0 = time.time()
-
-        # while not rospy.is_shutdown():
-        #     i += 1
-        #     timing = time.time() - Time0
-        #     fishx = self.object_position.x
-        #     fishy = self.object_position.y
-        #     fishz = self.object_position.z
-
-        #     if i < self.noStimDurPreExp:
-        #         self.hide_node(self._node_name1)
-        #         self.hide_node(self._node_name2)
-        #         print("noStimDurPreExpFRAME: ", i)
-        #     elif i < (self.noStimDurPreExp + (self.stimTrialCount * (self.stimTrialDur + self.interStimDur))):
-        #         if i % (self.stimTrialDur + self.interStimDur) < self.stimTrialDur:
-        #             self.run_stimuli_trial(i)
-        #         else:
-        #             self.hide_node(self._node_name1)
-
-        #             self.hide_node(self._node_name2)
-        #             print("interStimFRAME: ", i)
-        #     else:
-        #         self.hide_node(self._node_name1)
-        #         self.hide_node(self._node_name2)
-        #         print("noStimDurPostExpFRAME: ", i)
-
-        #         if i >= (self.noStimDurPreExp + (self.stimTrialCount * (self.stimTrialDur + self.interStimDur)) + self.noStimDurPostExp):
-                    # break  # Experiment ends
-      
