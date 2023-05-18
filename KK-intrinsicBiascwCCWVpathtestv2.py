@@ -179,7 +179,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     def move_back_and_forth(self):
         zHeight = -0.03
         pathLength = 10  # Path length of 10 cm
-        startOffset = 0.04  # Starting offset from the center (4 cm)
+        startOffset = 0.08  # Starting offset from the center (4 cm)
         x_position = startOffset + self.direction * self.speed * self.t
 
         if abs(x_position - startOffset) > pathLength:
@@ -233,6 +233,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         if distance > radiusThreshold:  # If real fish is outside radius
             # Move virtual fish in a circular path around the center
             self.angle1 = self.move_in_constant_speed_circle(pathRadius= circularPathRadius, direction=1, center=(0,0), angle=self.angle1, node_name=self._node_name1)
+            # hide node 2
+            self.hide_node(self._node_name2)
             self.inside_radius = False  # set the flag to False
         else:  # If real fish is inside radius
             if not self.inside_radius:  # If it is the first entry
