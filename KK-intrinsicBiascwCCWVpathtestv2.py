@@ -61,6 +61,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.angle2 = -np.pi / 2  # -90 degrees
         self.t = 0
         self.dt = 0.01
+        # self.osgX1 = 0
+        # self.osgY1 = 0
+        # self.osgX2 = 0
+        # self.osgY2 = 0
         self.current_position = 0
         self.direction = 1  # direction of movement: 1 for forward, -1 for backward
         self.path_length = 0.10  # path length in meters
@@ -304,6 +308,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         while not rospy.is_shutdown():
             i += 1
             timing = time.time() - Time0
+            osgX1 = self._osg_model.get_node_position(self._node_name1).x
+            osgY1 = self._osg_model.get_node_position(self._node_name1).y
+            osgX2 = self._osg_model.get_node_position(self._node_name2).x
+            osgY2 = self._osg_model.get_node_position(self._node_name2).y
             fishx = self.object_position.x
             fishy = self.object_position.y
             fishz = self.object_position.z
@@ -350,8 +358,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.log.fishy = fishy
             self.log.fishz = fishz
             self.log.direction = self.direction
-            self.log.currentStimType = self.currentStimType
-            self.log.current_trial = current_trial
             self.log.angle1 = self.angle1
             self.log.angle2 = self.angle2
             self.log.pathRadius = pathRadius
