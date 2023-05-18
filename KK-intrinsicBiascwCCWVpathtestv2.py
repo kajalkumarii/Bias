@@ -150,8 +150,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         orientation = angle + (np.pi / 2 * direction)  # calculate orientation
         self._osg_model.move_node(node_name, x=osgX1, y=osgY1, z=zHeight, orientation_z=orientation)
         print("x: ", osgX1, "y: ", osgY1, "z: ", zHeight, "orientation: ", orientation)
-        self.log_osgX1 = osgX1
-        self.log_osgY1 = osgY1
+        self.osgX1 = osgX1
+        self.osgY1 = osgY1
         return angle
 
     def move_back_and_forth(self):
@@ -191,10 +191,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         # Increment time
         self.t += self.dt
 
-        self.log_osgX1 = osgX1
-        self.log_osgY1 = osgY1
-        self.log_osgX2 = osgX2
-        self.log_osgY2 = osgY2
+        self.osgX1 = osgX1
+        self.osgY1 = osgY1
+        self.osgX2 = osgX2
+        self.osgY2 = osgY2
 
    
     def move_in_circling_paths(self, pathRadius, centers, direction):
@@ -252,10 +252,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             # Increment time
             self.t += dt
 
-            self.log_osgX1 = osgX1[0]
-            self.log_osgY1 = osgX1[1]
-            self.log_osgX2 = osgX2[0]
-            self.log_osgY2 = osgX2[1]
+            self.osgX1 = osgX1[0]
+            self.osgY1 = osgX1[1]
+            self.osgX2 = osgX2[0]
+            self.osgY2 = osgX2[1]
         
 
     # this is the main function that is called after the node is constructed. you can do anything
