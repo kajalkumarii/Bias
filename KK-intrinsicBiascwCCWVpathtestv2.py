@@ -178,21 +178,21 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     #     self.t += self.dt
     def move_back_and_forth(self):
         zHeight = -0.03
-        startOffset = 0.08  # Starting offset from the center (4 cm)
-        x_position = startOffset + self.direction * self.speed * self.t
+        offset = 0.04  # Offset of 4cm in meters
+        x_position = self.direction * self.speed * self.t
 
-        if abs(x_position - startOffset) > self.path_length:
+        if abs(x_position) > self.path_length:
             # If fish reached the end of the path, take a 180-degree turn
             self.direction *= -1
-            x_position = 2 * startOffset + 2 * self.path_length - x_position
+            x_position = 2 * self.path_length - x_position
 
         # Position of the first fish
         osgX1 = x_position
-        osgY1 = 0
+        osgY1 = -offset  # Offset applied here
 
         # Position of the second fish
         osgX2 = osgX1
-        osgY2 = self.distance_between_fish
+        osgY2 = self.distance_between_fish - offset  # Offset applied here
 
         # Calculate the orientation
         orientation = np.pi / 2 * (1 - self.direction)
@@ -202,6 +202,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # Increment time
         self.t += self.dt
+
    
     def move_in_circling_paths(self, pathRadius, centers, direction):
         dt = 0.01
