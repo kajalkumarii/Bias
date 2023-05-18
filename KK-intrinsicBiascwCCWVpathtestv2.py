@@ -304,10 +304,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         fishx=0
         fishy=0
         fishz=0
-        self.log.osgX1 = self.osgX1
-        self.log.osgY1 = self.osgY1
-        self.log.osgX2 = self.osgX2
-        self.log.osgY2 = self.osgY2
         
         rho_fish = 0
 
