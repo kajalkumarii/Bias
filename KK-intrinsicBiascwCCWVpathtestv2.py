@@ -143,11 +143,11 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         rotSpeed = self.speed / pathRadius * direction  # angular speed in rad/s
         angle += rotSpeed * dt  # Update angle based on angular speed
-        osgX = center[0] + pathRadius * np.cos(angle)  # x position of the node
-        osgY = center[1] + pathRadius * np.sin(angle)  # y position of the node
+        osgX1 = center[0] + pathRadius * np.cos(angle)  # x position of the node
+        osgY1 = center[1] + pathRadius * np.sin(angle)  # y position of the node
         orientation = angle + (np.pi / 2 * direction)  # calculate orientation
-        self._osg_model.move_node(node_name, x=osgX, y=osgY, z=zHeight, orientation_z=orientation)
-        print("x: ", osgX, "y: ", osgY, "z: ", zHeight, "orientation: ", orientation)
+        self._osg_model.move_node(node_name, x=osgX1, y=osgY1, z=zHeight, orientation_z=orientation)
+        print("x: ", osgX1, "y: ", osgY1, "z: ", zHeight, "orientation: ", orientation)
         return angle
 
     def move_back_and_forth(self):
@@ -233,12 +233,12 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 self.direction *= -1
 
             # Calculate new positions of the virtual fish
-            newPosition1 = self.initial_position1 + np.array([self.t * self.speed * np.cos(angleBetweenPaths/2), self.t * self.speed * np.sin(angleBetweenPaths/2)])
-            newPosition2 = self.initial_position2 + np.array([self.t * self.speed * np.cos(-angleBetweenPaths/2), self.t * self.speed * np.sin(-angleBetweenPaths/2)])
+            osg1 = self.initial_position1 + np.array([self.t * self.speed * np.cos(angleBetweenPaths/2), self.t * self.speed * np.sin(angleBetweenPaths/2)])
+            osg2 = self.initial_position2 + np.array([self.t * self.speed * np.cos(-angleBetweenPaths/2), self.t * self.speed * np.sin(-angleBetweenPaths/2)])
 
             # Move the virtual fish to the new positions
-            self._osg_model.move_node(self._node_name1, x=newPosition1[0], y=newPosition1[1], z=zHeight)
-            self._osg_model.move_node(self._node_name2, x=newPosition2[0], y=newPosition2[1], z=zHeight)
+            self._osg_model.move_node(self._node_name1, x=osg1[0], y=osg1[1], z=zHeight)
+            self._osg_model.move_node(self._node_name2, x=osg2[0], y=osg2[1], z=zHeight)
 
             # Increment time
             self.t += dt
@@ -254,10 +254,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         fishx=0
         fishy=0
         fishz=0
-        osgNodeX1 = 0
-        osgNodeY1 = 0
-        osgNodeX2 = 0
-        osgNodeY2 = 0
+        osgX1 = 0
+        osgY1 = 0
+        osgX2 = 0
+        osgY2 = 0
         
         self.centerX = 0
         self.centerY = 0    
@@ -271,16 +271,16 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         fps = 100
         r = rospy.Rate(fps)
         
-        self.noStimDurPreExp = 3* fps
-        self.noStimDurPostExp = 3* fps
+        self.noStimDurPreExp = 5* fps
+        self.noStimDurPostExp = 5* fps
         self.noStimDurPreExpFRAME = 0
         self.noStimDurPostExpFRAME = 0
         self.allStimComplete = False
        
-        self.stimTrialDur = 5*fps
+        self.stimTrialDur = 1*6*fps
         self.interStimDur = 0.5*fps
 
-        self.stimTrialCount = 20
+        self.stimTrialCount = 16
 
         self.currentStimType = 0
         self.direction = None
@@ -338,42 +338,12 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 self.hide_node(self._node_name2)
                 print("noStimDurPostExpFRAME: ", i)
 
-
-        # while not rospy.is_shutdown():
-        #     i += 1
-        #     timing = time.time() - Time0
-        #     fishx = self.object_position.x
-        #     fishy = self.object_position.y
-        #     fishz = self.object_position.z
-
-        #     if i < self.noStimDurPreExp:
-        #         self.hide_node(self._node_name1)
-        #         self.hide_node(self._node_name2)
-        #         print("noStimDurPreExpFRAME: ", i)
-        #     elif i < (self.noStimDurPreExp + (self.stimTrialCount * (self.stimTrialDur + self.interStimDur))):
-        #         current_trial_new = (i - self.noStimDurPreExp) // (self.stimTrialDur + self.interStimDur)
-        #         if current_trial_new != current_trial:
-        #             # We are in a new trial, so choose a new stimulus type
-        #             stim_type = self.get_stim_type()
-        #             current_trial = current_trial_new
-
-        #         if i % (self.stimTrialDur + self.interStimDur) < self.stimTrialDur:
-        #             self.run_stimuli_trial(i, stim_type)
-        #         else:
-        #             self.hide_node(self._node_name1)
-        #             self.hide_node(self._node_name2)
-        #             print("interStimFRAME: ", i)
-        #     else:
-        #         self.hide_node(self._node_name1)
-        #         self.hide_node(self._node_name2)
-        #         print("noStimDurPostExpFRAME: ", i)
-
             # save all data
             self.log.realtime = timing
-            self.log.osgNodeX1 = osgNodeX1
-            self.log.osgNodeY1 = osgNodeY1
-            self.log.osgNodeX2 = osgNodeX2
-            self.log.osgNodeY2 = osgNodeY2
+            self.log.osgX1 = osgX1
+            self.log.osgY1 = osgY1
+            self.log.osgX2 = osgX2
+            self.log.osgY2 = osgY2
             self.log.orientation = orientation
             self.log.time_i = i
             self.log.fishx = fishx
