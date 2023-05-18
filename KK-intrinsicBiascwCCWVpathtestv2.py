@@ -34,16 +34,14 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
     def __init__(self, args):
         # first chain up to the base class to allow it to parse the command line arguments
-        fishvr.experiment.Experiment.__init__(self, args, state=('osgNodeX1', 'osgNodeY1', 'osgNodeX2','osgNodeX2',\
+        fishvr.experiment.Experiment.__init__(self, args, state=('osgX1', 'osgY1', 'osgX2','osgX2',\
                                                                     'timing', 'fishx', 'fishy', 'fishz',\
-                                                                    'fish_theta', 'zHeight', 'pathRadius',\
+                                                                     'zHeight', 'pathRadius', 'orientation',\
+                                                                        'time_i', 'direction', 'current_trial',\
+                                                                    'interstim_end_frame','interstim_start_frame','stim_end_frame','stim_start_frame','current_trial_new','current_trial','stim_type'
                                                                         'currentStimType','currentDirection', 'currentStimTrial',\
-                                                                        'noStimDurPreExp', 'noStimDurPostExp',\
-                                                                        'noStimDurPreExpComplete', 'noStimDurPostExpComplete',\
-                                                                            'allStimComplete','stimTrialComplete', 'stimTrialInitiated',\
-                                                                                    'interStimComplete', 'interStimInitiated',\
-                                                                                        'interStimFRAME', 'stimTrialFRAME','rho_fish',\
-                                                                                        'speed', 'rotSpeed', 'angle', 'dt','fishHeading'
+                                                                        'noStimDurPreExpFRAME', 'noStimDurPostExpFRAME', 'interStimFRAME',\
+                                                                                        'speed', 'rotSpeed', 'angle', 'dt'
                                                                                                         ))
 
         # state has a very important meaning, it describes things which should be saved in the
@@ -233,12 +231,12 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 self.direction *= -1
 
             # Calculate new positions of the virtual fish
-            osg1 = self.initial_position1 + np.array([self.t * self.speed * np.cos(angleBetweenPaths/2), self.t * self.speed * np.sin(angleBetweenPaths/2)])
-            osg2 = self.initial_position2 + np.array([self.t * self.speed * np.cos(-angleBetweenPaths/2), self.t * self.speed * np.sin(-angleBetweenPaths/2)])
+            osgX1 = self.initial_position1 + np.array([self.t * self.speed * np.cos(angleBetweenPaths/2), self.t * self.speed * np.sin(angleBetweenPaths/2)])
+            osgX2 = self.initial_position2 + np.array([self.t * self.speed * np.cos(-angleBetweenPaths/2), self.t * self.speed * np.sin(-angleBetweenPaths/2)])
 
             # Move the virtual fish to the new positions
-            self._osg_model.move_node(self._node_name1, x=osg1[0], y=osg1[1], z=zHeight)
-            self._osg_model.move_node(self._node_name2, x=osg2[0], y=osg2[1], z=zHeight)
+            self._osg_model.move_node(self._node_name1, x=osgX1[0], y=osgX1[1], z=zHeight)
+            self._osg_model.move_node(self._node_name2, x=osgX2[0], y=osgX2[1], z=zHeight)
 
             # Increment time
             self.t += dt
@@ -275,7 +273,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.noStimDurPostExp = 5* fps
         self.noStimDurPreExpFRAME = 0
         self.noStimDurPostExpFRAME = 0
-        self.allStimComplete = False
        
         self.stimTrialDur = 1*6*fps
         self.interStimDur = 0.5*fps
@@ -287,12 +284,15 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         orientation = 0
         self.current_trial = None
 
-        self.stimTrialComplete = False
-        self.stimTrialInititated = False
+        interstim_end_frame = 0
+        interstim_start_frame = 0
+        stim_end_frame = 0
+        stim_start_frame = 0
+        current_trial_new = 0
+        current_trial = 0
+        stim_type = 0
 
-        self.interStimComplete = True
-        self.interStimFRAME = 0
-        self.stimTrialFRAME = 0
+        
         rho_fish = 0
 
         i = 0
