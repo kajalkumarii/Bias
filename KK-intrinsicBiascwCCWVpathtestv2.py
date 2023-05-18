@@ -61,10 +61,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.angle2 = -np.pi / 2  # -90 degrees
         self.t = 0
         self.dt = 0.01
-        # self.osgX1 = 0
-        # self.osgY1 = 0
-        # self.osgX2 = 0
-        # self.osgY2 = 0
+        self.osgX1 = 0
+        self.osgY1 = 0
+        self.osgX2 = 0
+        self.osgY2 = 0
         self.current_position = 0
         self.direction = 1  # direction of movement: 1 for forward, -1 for backward
         self.path_length = 0.10  # path length in meters
@@ -150,6 +150,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         orientation = angle + (np.pi / 2 * direction)  # calculate orientation
         self._osg_model.move_node(node_name, x=osgX1, y=osgY1, z=zHeight, orientation_z=orientation)
         print("x: ", osgX1, "y: ", osgY1, "z: ", zHeight, "orientation: ", orientation)
+        self.log_osgX1 = osgX1
+        self.log_osgY1 = osgY1
         return angle
 
     def move_back_and_forth(self):
@@ -188,6 +190,11 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # Increment time
         self.t += self.dt
+
+        self.log_osgX1 = osgX1
+        self.log_osgY1 = osgY1
+        self.log_osgX2 = osgX2
+        self.log_osgY2 = osgY2
 
    
     def move_in_circling_paths(self, pathRadius, centers, direction):
@@ -244,6 +251,11 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
             # Increment time
             self.t += dt
+
+            self.log_osgX1 = osgX1[0]
+            self.log_osgY1 = osgX1[1]
+            self.log_osgX2 = osgX2[0]
+            self.log_osgY2 = osgX2[1]
         
 
     # this is the main function that is called after the node is constructed. you can do anything
@@ -253,14 +265,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # initilize iteration & timing
         i = 0
-        fishx=0
-        fishy=0
-        fishz=0
-        osgX1 = 0
-        osgY1 = 0
-        osgX2 = 0
-        osgY2 = 0
-        
+       
         self.centerX = 0
         self.centerY = 0    
         zHeight = -0.03
@@ -296,6 +301,13 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         current_trial = 0
         stim_type = 0
 
+        fishx=0
+        fishy=0
+        fishz=0
+        self.log.osgX1 = self.osgX1
+        self.log.osgY1 = self.osgY1
+        self.log.osgX2 = self.osgX2
+        self.log.osgY2 = self.osgY2
         
         rho_fish = 0
 
@@ -348,10 +360,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
             # save all data
             self.log.realtime = timing
-            self.log.osgX1 = osgX1
-            self.log.osgY1 = osgY1
-            self.log.osgX2 = osgX2
-            self.log.osgY2 = osgY2
+            self.log.osgX1 = self.osgX1
+            self.log.osgY1 = self.osgY1
+            self.log.osgX2 = self.osgX2
+            self.log.osgY2 = self.osgY2
             self.log.orientation = orientation
             self.log.time_i = i
             self.log.fishx = fishx
