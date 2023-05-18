@@ -279,13 +279,13 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         fps = 100
         r = rospy.Rate(fps)
         
-        self.noStimDurPreExp = 5* fps
-        self.noStimDurPostExp = 5* fps
+        self.noStimDurPreExp = 3*60 *fps
+        self.noStimDurPostExp = 3*60 *fps
         self.noStimDurPreExpFRAME = 0
         self.noStimDurPostExpFRAME = 0
        
-        self.stimTrialDur = 1*6*fps
-        self.interStimDur = 0.5*fps
+        self.stimTrialDur = 1*60*fps
+        self.interStimDur = 0.5*60*ps
 
         self.stimTrialCount = 16
 
