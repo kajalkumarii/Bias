@@ -67,6 +67,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.path_length = 0.10  # path length in meters
         self.distance_between_fish = 0.08  # distance between fish in meters
         self.speed = 0.05  # speed in meters per second
+        self.inside_radius = False
+        self.initial_position1 = np.array([0.0, 0.0])
+        self.initial_position2 = np.array([0.0, 0.0])
 
         # StimulusOSGController makes it easier to control things in osg files
         self._osg_model = osg_utils.StimulusOSGController()
@@ -127,11 +130,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             centers = [(0.08, 0), (-0.08, 0)]
             self.move_in_circling_paths(pathRadius=0.05, centers= centers, direction=self.direction)
         elif stim_type == 4:
-            # x = self.object_position.x
-            # y = self.object_position.y
-            # z = self.object_position.z
-            # real_fish_position = (x, y, z)
-            self.move_in_radius_with_real_fish()#real_fish_position, direction=self.direction)
+            fishx = self.object_position.x
+            fishy = self.object_position.y
+            self.stimulate_fish_behavior(fishx, fishy)
 
 
     def move_in_constant_speed_circle(self, pathRadius, direction, center, angle, node_name):
@@ -185,7 +186,48 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 self.angle1 = self.move_in_constant_speed_circle(pathRadius, direction, center, self.angle1, self._node_name1)
             else:
                 self.angle2 = self.move_in_constant_speed_circle(pathRadius, -direction, center, self.angle2, self._node_name2)
-    
+
+
+    def stimulate_fish_behavior(self, fishx, fishy):
+        dt = 0.01  # time step
+        zHeight = -0.03  # height of the center of the circle above the table
+        speed = 0.05  # speed of virtual fish
+        radiusThreshold = 0.04  # 4 cm radius threshold
+        circularPathRadius = 0.02  # 2 cm radius for circular path
+        straightPathLength = 0.1  # 10 cm straight path
+        initialDistance = 0.01  # 1 cm distance from real fish
+        angleBetweenPaths = np.radians(60)  # 60 degree angle in radians
+
+        # Calculate distance between real fish and center
+        distance = np.sqrt((fishx- 0)**2 + (fishy - 0)**2)
+
+        if distance > radiusThreshold:  # If real fish is outside radius
+            # Move virtual fish in a circular path around the center
+            self.angle1 = self.move_in_constant_speed_circle(pathRadius= circularPathRadius, direction=1, center=(0,0), angle=self.angle1, node_name=self._node_name1)
+            self.inside_radius = False  # set the flag to False
+        else:  # If real fish is inside radius
+            if not self.inside_radius:  # If it is the first entry
+                self.t = 0
+                self.direction = 1  # Initial direction
+                self.initial_position1 = np.array([fishx+ initialDistance * np.cos(angleBetweenPaths/2), fishy + initialDistance * np.sin(angleBetweenPaths/2)])
+                self.initial_position2 = np.array([fishx+ initialDistance * np.cos(-angleBetweenPaths/2), fishy + initialDistance * np.sin(-angleBetweenPaths/2)])
+                self.inside_radius = True  # set the flag to True
+
+            if self.t * speed > straightPathLength:  # If virtual fish has traveled 10 cm
+                self.t = 0
+                self.direction *= -1
+
+            # Calculate new positions of the virtual fish
+            newPosition1 = self.initial_position1 + np.array([self.t * speed * np.cos(angleBetweenPaths/2), self.t * speed * np.sin(angleBetweenPaths/2)])
+            newPosition2 = self.initial_position2 + np.array([self.t * speed * np.cos(-angleBetweenPaths/2), self.t * speed * np.sin(-angleBetweenPaths/2)])
+
+            # Move the virtual fish to the new positions
+            self._osg_model.move_node(self._node_name1, x=newPosition1[0], y=newPosition1[1], z=zHeight)
+            self._osg_model.move_node(self._node_name2, x=newPosition2[0], y=newPosition2[1], z=zHeight)
+
+            # Increment time
+            self.t += dt
+        
 
     # this is the main function that is called after the node is constructed. you can do anything
     # you wish in here, but typically this is where you would dynamically change the virtual
