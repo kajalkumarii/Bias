@@ -182,10 +182,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         x_position = self.direction * self.speed * self.t
 
         if abs(x_position) > self.path_length:
-            # If fish has moved further than path_length, change direction and reset x_position
+            # If fish has moved further than path_length, change direction and adjust x_position
             self.direction *= -1
-            x_position = 0
-            self.t = 0  # Reset time to start a new trajectory
+            x_position = x_position - self.direction * self.path_length
 
         # Position of the first fish
         osgX1 = x_position
@@ -203,6 +202,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # Increment time
         self.t += self.dt
+
 
    
     def move_in_circling_paths(self, pathRadius, centers, direction):
