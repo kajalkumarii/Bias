@@ -67,6 +67,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.osg_x2 = 0
         self.osg_y2 = 0
         self.start_radius = 0.10  # 10 cm from the center
+        self.current_radius = self.start_radius  # initialize current_radius with start_radius
         self.theta = 0  # start angle, 0 means along the x axis
         self.current_position = 0
         self.direction = 1  # direction of movement: 1 for forward, -1 for backward
@@ -204,7 +205,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         offset = 0.04  # Offset of 4cm in meters
 
         # Calculate the new radius considering direction and speed
-        radius = self.start_radius + self.direction * self.speed * self.dt
+        radius = self.current_radius + self.direction * self.speed * self.dt
 
         # Implement desired path conditions
         if self.direction > 0 and radius >= self.start_radius + self.path_length/2:  # If fish moved 5 cm away from start_radius
@@ -213,6 +214,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         elif self.direction < 0 and radius <= self.start_radius - self.path_length/2:  # If fish moved 5 cm towards center
             self.direction *= -1  # change direction
             radius = self.start_radius - self.path_length/2  # The fish should not move further than 5 cm towards center
+
+        # Update current radius for the next move
+        self.current_radius = radius
 
         # Convert radius and theta into Cartesian coordinates
         x_position = radius * math.cos(self.theta)
@@ -239,6 +243,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.osgY1 = osgY1
         self.osgX2 = osgX2
         self.osgY2 = osgY2
+
 
     def move_in_circling_paths(self, path_radius, centers, direction):
         dt = 0.01
