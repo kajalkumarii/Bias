@@ -157,7 +157,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         print("currentStimTrial: ", current_trial + 1)
 
         if self.current_trial != current_trial:
-            self.current_trial: int = current_trial
+            self.current_trial = current_trial
             self.direction = random.choice([-1, 1])
 
         if stim_type == 1:
