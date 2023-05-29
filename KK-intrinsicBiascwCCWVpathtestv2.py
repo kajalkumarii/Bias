@@ -66,8 +66,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.osg_y1 = 0
         self.osg_x2 = 0
         self.osg_y2 = 0
-        self.initial_offset = -0.10  # 10 cm from the center
-        self.current_offset = self.initial_offset  # initialize current_offset with initial_offset
+        # self.initial_offset = 0.10  # 10 cm from the center
+        self.current_offset = 0.10  # initialize current_offset with initial_offset
         self.direction = -1  # direction of movement: 1 for forward, -1 for backward
         self.path_length = 0.20  # path length in meters
         self.distance_between_fish = 0.08  # distance between fish in meters
@@ -196,6 +196,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.osg_y1 = osg_y1
         self.osg_x2 = osg_x2
         self.osg_y2 = osg_y2
+
 
     def move_in_circling_paths(self, path_radius, centers, direction):
         dt = 0.01
