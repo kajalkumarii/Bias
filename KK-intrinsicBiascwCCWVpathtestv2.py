@@ -73,7 +73,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.final_offset = 0.08  # fish ends 8 cm away from the center towards the other side
         self.current_offset = self.initial_offset  # initialize current position
         self.speed = 0.04  # speed in meters per second
-        self.inside_radius = True
+        self.inside_radius = False
         self.initial_position1 = np.array([0.0, 0.0])
         self.initial_position2 = np.array([0.0, 0.0])
 
@@ -133,8 +133,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         elif stim_type == 2:
             self.move_back_and_forth()
         elif stim_type == 3:
-            centers = [(0.10, 0), (-0.10, 0)]
-            self.move_in_circling_paths(path_radius=0.05, centers= centers, direction=self.direction)
+            centers = [(0.08, 0), (-0.08, 0)]
+            self.move_in_circling_paths(path_radius=0.06, centers= centers, direction=self.direction)
         elif stim_type == 4:
             fishx = self.object_position.x
             fishy = self.object_position.y
@@ -227,7 +227,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.hide_node(self._node_name2)
             self.inside_radius = False  # set the flag to False
         else:  # If real fish is inside radius
-            if self.inside_radius:  # If it is the first entry
+            if not self.inside_radius:  # If it is the first entry
                 self.t = 0
                 self.direction = 1  # Initial direction
                 self.initial_position1 = np.array([fishx+ initial_distance* np.cos(angle_between_paths/2), fishy + initial_distance* np.sin(angle_between_paths/2)])
