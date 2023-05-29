@@ -364,8 +364,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 current_trial_new = int((i - self.no_stim_pre_exp_dur) // (self.stim_trial_dur + self.inter_stim_durtim_dur))
                 if current_trial_new != current_trial:
                     # We are in a new trial, so get the stimulus type from the generated order
-                    print(f'Length of stimulus_order: {len(stimulus_order)}')
-                    print(f'Self.stim_trial_count: {self.stim_trial_count}')
+                    print('Length of stimulus_order: {}'.format(len(stimulus_order)))
+                    print('Self.stim_trial_count: {}'.format(self.stim_trial_count))
 
                     stim_type = stimulus_order[current_trial_new]
                     current_trial = current_trial_new
