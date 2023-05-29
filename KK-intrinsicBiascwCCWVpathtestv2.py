@@ -141,22 +141,24 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             fishy = self.object_position.y
             self.stimulate_fish_behavior(fishx, fishy)
 
+    def generate_stimulus_order(self, num_stim_types):
+        # Generate a random order of stimulus types
+        stimulus_order = []
+        stim_counts = [0] * num_stim_types  # Counter for each stimulus type
+        num_trials = self.stim_trial_count
 
-    # def move_in_constant_speed_circle(self, path_radius, direction, center, angle, node_name):
-    #     dt = 0.01  # time step
-    #     z_height = -0.03  # height of the center of the circle above the table
-    #     self.speed = 0.04
+        while len(stimulus_order) < num_trials:
+            # Shuffle the stimulus types if all types have been used at least once
+            if all(count == 1 for count in stim_counts):
+                random.shuffle(stim_counts)
 
-    #     rot_speed = self.speed / path_radius * direction  # angular speed in rad/s
-    #     angle += rot_speed * dt  # Update angle based on angular speed
-    #     osg_x1 = center[0] + path_radius * np.cos(angle)  # x position of the node
-    #     osg_y1 = center[1] + path_radius * np.sin(angle)  # y position of the node
-    #     orientation = angle + (np.pi / 2 * direction)  # calculate orientation
-    #     self._osg_model.move_node(node_name, x=osg_x1, y=osg_y1, z=z_height, orientation_z=orientation)
-    #     print("x: ", osg_x1, "y: ", osg_y1, "z: ", z_height, "orientation: ", orientation)
-    #     self.osg_x1 = osg_x1
-    #     self.osg_y1 = osg_y1
-    #     return angle
+            # Choose a stimulus type randomly until it reaches the desired count
+            stim_type = random.randint(1, num_stim_types)
+            if stim_counts[stim_type - 1] < (num_trials // num_stim_types):  # Check if the stimulus count is less than the desired count
+                stimulus_order.append(stim_type)
+                stim_counts[stim_type - 1] += 1
+        return stimulus_order
+    
 
     def move_in_constant_speed_circle(self, path_radius, direction, center, initial_position, angle, node_name):
         dt = 0.01  # time step
@@ -225,32 +227,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             else:
                 self.angle2 = self.move_in_constant_speed_circle(path_radius, -direction, center, initial_position, self.angle2, self._node_name2)
 
-    # def move_in_circling_paths(self, path_radius, centers, direction):
-    #     dt = 0.01
-    #     z_height = -0.03
-    #     self.speed = 0.04
-    #     rot_speed = self.speed / path_radius
-
-    #     for i, center in enumerate(centers):
-    #         if i == 0:
-    #             initial_position1 = self.get_closest_point_on_circle(center, path_radius, (0, 0))
-    #             osg_x1, osg_y1 = initial_position1
-    #             self._osg_model.move_node(self._node_name1, x=osg_x1, y=osg_y1, z=z_height)
-    #         else:
-    #             initial_position2 = self.get_closest_point_on_circle(center, path_radius, (0, 0))
-    #             osg_x2, osg_y2 = initial_position2
-    #             self._osg_model.move_node(self._node_name2, x=osg_x2, y=osg_y2, z=z_height)
-
-    # def get_closest_point_on_circle(self, center, radius, point):
-    #     dx = point[0] - center[0]
-    #     dy = point[1] - center[1]
-    #     magnitude = math.sqrt(dx ** 2 + dy ** 2)
-    #     if magnitude == 0:
-    #         return center  # Point is already at the center of the circle
-    #     closest_x = center[0] + dx * radius / magnitude
-    #     closest_y = center[1] + dy * radius / magnitude
-    #     return closest_x, closest_y
-
 
     def stimulate_fish_behavior(self, fishx, fishy):
         dt = 0.01  # time step
@@ -287,10 +263,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             # Calculate new positions of the virtual fish
             osg_x1 = self.initial_position1 + np.array([self.t * self.speed * np.cos(angle_between_paths/2), self.t * self.speed * np.sin(angle_between_paths/2)])
             osg_x2 = self.initial_position2 + np.array([self.t * self.speed * np.cos(-angle_between_paths/2), self.t * self.speed * np.sin(-angle_between_paths/2)])
-
-            # # Move the virtual fish to the new positions
-            # self._osg_model.move_node(self._node_name1, x=osg_x1[0], y=osg_x1[1], z=z_height)
-            # self._osg_model.move_node(self._node_name2, x=osg_x2[0], y=osg_x2[1], z=z_height)
 
             # Calculate the orientation angle based on the direction of motion
             angle1 = np.arctan2(self.t * self.speed * np.sin(angle_between_paths/2), self.t * self.speed * np.cos(angle_between_paths/2))
@@ -363,6 +335,11 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         current_trial = -1
         stim_type = None
 
+        num_stim_types = 4
+
+    # Generate the random stimulus order
+        stimulus_order = self.generate_stimulus_order(num_stim_types)
+
 
         while not rospy.is_shutdown():
             i += 1
@@ -376,11 +353,17 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 self.hide_node(self._node_name2)
                 stim_flag = 0  # Set stim_flag as 0
                 print("no_stim_pre_exp_durFRAME: ", i)
+            # elif i < (self.no_stim_pre_exp_dur + (self.stim_trial_count * (self.stim_trial_dur + self.inter_stim_durtim_dur))):
+            #     current_trial_new = (i - self.no_stim_pre_exp_dur) // (self.stim_trial_dur + self.inter_stim_durtim_dur)
+            #     if current_trial_new != current_trial:
+            #         # We are in a new trial, so choose a new stimulus type
+            #         stim_type = self.get_stim_type()
+            #         current_trial = current_trial_new
             elif i < (self.no_stim_pre_exp_dur + (self.stim_trial_count * (self.stim_trial_dur + self.inter_stim_durtim_dur))):
                 current_trial_new = (i - self.no_stim_pre_exp_dur) // (self.stim_trial_dur + self.inter_stim_durtim_dur)
                 if current_trial_new != current_trial:
-                    # We are in a new trial, so choose a new stimulus type
-                    stim_type = self.get_stim_type()
+                    # We are in a new trial, so get the stimulus type from the generated order
+                    stim_type = stimulus_order[current_trial_new]
                     current_trial = current_trial_new
 
                 # Calculate start and end frames for stimulus trial and inter-stimulus state
