@@ -105,44 +105,90 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     # add D's filter/object ID/frame number diff
 
     def should_lock_on(self, obj):
-        # for example only lock onto fish < 15cm (in x,y) from the centre of the arena
+        """
+        Check if the object should be locked on based on its position.
+
+        Args:
+            obj (object): The object to be checked.
+
+        Returns:
+            bool: True if the object should be locked on, False otherwise.
+        """
         r2 = obj.position.x**2 + obj.position.y**2
         return r2 < (0.15**2)
 
     def hide_node(self, node_name):
+        """
+        Hide the specified node in the OpenSceneGraph model.
+
+        Args:
+            node_name (str): Name of the node to be hidden.
+        """
         self._osg_model.move_node(node_name, hidden=True)
 
     def show_node(self, node_name):
+        """
+        Show the specified node in the OpenSceneGraph model.
+
+        Args:
+            node_name (str): Name of the node to be shown.
+        """
         self._osg_model.move_node(node_name, hidden=False)
-    
+
     def get_stim_type(self):
-        # Return a randomly chosen stimulus type in the range of 1 to 4
+        """
+        Return a randomly chosen stimulus type in the range of 1 to 4.
+
+        Returns:
+            int: Randomly chosen stimulus type.
+        """
         return random.randint(1, 4)
 
     def run_stimuli_trial(self, i, stim_type):
+        """
+        Run a stimulus trial.
+
+        Args:
+            i (int): Current trial number.
+            stim_type (int): Stimulus type for the trial.
+        """
         current_trial = (i - self.no_stim_pre_exp_dur) // (self.stim_trial_dur + self.inter_stim_durtim_dur)
         print("currentStimType: ", stim_type)
         print("currentStimTrial: ", current_trial + 1)
 
         if self.current_trial != current_trial:
-            self.current_trial = current_trial
+            self.current_trial: int = current_trial
             self.direction = random.choice([-1, 1])
 
         if stim_type == 1:
+            # Stimulus type 1: Move in a constant speed circle around the center of the arena
             initial_position = (0.02, 0)  # Define the initial position for the virtual fish
             self.angle1 = self.move_in_constant_speed_circle(path_radius=0.08, direction=self.direction, center=(0,0), initial_position=initial_position, angle=self.angle1, node_name=self._node_name1)
         elif stim_type == 2:
+            # Stimulus type 2: Move back and forth
             self.move_back_and_forth()
         elif stim_type == 3:
+            # Stimulus type 3: Move in circling paths around multiple centers
             centers = [(0.08, 0), (-0.08, 0)]
-            self.move_in_circling_paths(path_radius=0.06, centers= centers, direction=self.direction)
+            self.move_in_circling_paths(path_radius=0.06, centers=centers, direction=self.direction)
         elif stim_type == 4:
+            # Stimulus type 4: Stimulate fish behavior based on its position
             fishx = self.object_position.x
             fishy = self.object_position.y
             self.stimulate_fish_behavior(fishx, fishy)
 
+
+
     def generate_stimulus_order(self, num_stim_types):
-        # Generate a random order of stimulus types
+        """
+        Generate a random order of stimulus types.
+
+        Args:
+            num_stim_types (int): The number of stimulus types.
+
+        Returns:
+            list: A list representing the random order of stimulus types.
+        """
         stimulus_order = []
         stim_counts = [0] * num_stim_types  # Counter for each stimulus type
         num_trials = self.stim_trial_count
@@ -158,9 +204,23 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 stimulus_order.append(stim_type)
                 stim_counts[stim_type - 1] += 1
         return stimulus_order
-    
+
 
     def move_in_constant_speed_circle(self, path_radius, direction, center, initial_position, angle, node_name):
+        """
+        Move an object in a constant speed circle.
+
+        Args:
+            path_radius (float): Radius of the circular path.
+            direction (int): Direction of movement (-1 for clockwise, 1 for counterclockwise).
+            center (tuple): Center coordinates of the circular path.
+            initial_position (tuple): Initial position of the object.
+            angle (float): Current angle of the object on the circular path.
+            node_name (str): Name of the node in the model.
+
+        Returns:
+            float: Updated angle of the object on the circular path.
+        """
         dt = 0.01  # time step
         z_height = -0.03  # height of the center of the circle above the table
         self.speed = 0.04
@@ -177,6 +237,14 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         return angle
 
     def move_back_and_forth(self):
+        """
+        Move the virtual fish back and forth between two positions.
+
+        The fish moves in a straight line between two positions with an offset.
+
+        Note: The initial_offset and final_offset values need to be set before calling this method.
+
+        """
         zHeight = -0.03
         offset = 0.04  # Offset of 4cm in meters
 
@@ -213,6 +281,14 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
 
     def move_in_circling_paths(self, path_radius, centers, direction):
+        """
+        Move the virtual fish in circling paths around multiple centers.
+
+        Args:
+            path_radius (float): Radius of the circular paths.
+            centers (list): List of center coordinates for each circular path.
+            direction (int): Direction of movement (-1 for clockwise, 1 for counterclockwise).
+        """
         dt = 0.01
         z_height = -0.03
         self.speed = 0.04
@@ -226,25 +302,33 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 self.angle1 = self.move_in_constant_speed_circle(path_radius, direction, center, initial_position, self.angle1, self._node_name1)
             else:
                 self.angle2 = self.move_in_constant_speed_circle(path_radius, -direction, center, initial_position, self.angle2, self._node_name2)
+  
 
 
     def stimulate_fish_behavior(self, fishx, fishy):
+        """
+        Stimulate fish behavior based on the position of the real fish.
+
+        Args:
+            fishx (float): X-coordinate of the real fish position.
+            fishy (float): Y-coordinate of the real fish position.
+        """
         dt = 0.01  # time step
         z_height = -0.03  # height of the center of the circle above the table
         self.speed = 0.04  # speed of virtual fish
         radius_threshold = 0.04  # 4 cm radius threshold
         circularpath_radius = 0.02  # 2 cm radius for circular path
         straight_path_length = 0.1  # 10 cm straight path
-        initial_distance= 0.01  # 1 cm distance from real fish
+        initial_distance = 0.01  # 1 cm distance from real fish
         angle_between_paths = np.radians(60)  # 60 degree angle in radians
 
         # Calculate distance between real fish and center
-        distance = np.sqrt((fishx- 0)**2 + (fishy - 0)**2)
+        distance = np.sqrt((fishx - 0)**2 + (fishy - 0)**2)
 
         if distance > radius_threshold:  # If real fish is outside radius
             initial_position = (0.01, 0)  # Define the initial position for the virtual fish
             # Move virtual fish in a circular path around the center
-            self.angle1 = self.move_in_constant_speed_circle(path_radius=circularpath_radius, direction=1, center=(0,0), initial_position=initial_position, angle=self.angle1, node_name=self._node_name1)
+            self.angle1 = self.move_in_constant_speed_circle(path_radius=circularpath_radius, direction=1, center=(0, 0), initial_position=initial_position, angle=self.angle1, node_name=self._node_name1)
             # hide node 2
             self.hide_node(self._node_name2)
             self.inside_radius = False  # set the flag to False
@@ -252,8 +336,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             if not self.inside_radius:  # If it is the first entry
                 self.t = 0
                 self.direction = 1  # Initial direction
-                self.initial_position1 = np.array([fishx+ initial_distance* np.cos(angle_between_paths/2), fishy + initial_distance* np.sin(angle_between_paths/2)])
-                self.initial_position2 = np.array([fishx+ initial_distance* np.cos(-angle_between_paths/2), fishy + initial_distance* np.sin(-angle_between_paths/2)])
+                self.initial_position1 = np.array([fishx + initial_distance * np.cos(angle_between_paths/2), fishy + initial_distance * np.sin(angle_between_paths/2)])
+                self.initial_position2 = np.array([fishx + initial_distance * np.cos(-angle_between_paths/2), fishy + initial_distance * np.sin(-angle_between_paths/2)])
                 self.inside_radius = True  # set the flag to True
 
             if self.t * self.speed > straight_path_length:  # If virtual fish has traveled 10 cm
@@ -279,35 +363,39 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.osg_y1 = osg_x1[1]
             self.osg_x2 = osg_x2[0]
             self.osg_y2 = osg_x2[1]
-        
+
 
     # this is the main function that is called after the node is constructed. you can do anything
     # you wish in here, but typically this is where you would dynamically change the virtual
     # environment, for example in response to the tracked object position
     def loop(self):
+        """
+        Main function that is called after the node is constructed.
 
-        # initilize iteration & timing
+        This function typically handles the dynamic changes in the virtual environment, such as responding to tracked object positions.
+        """
+        # initialize iteration & timing
         i = 0
-       
+
         self.centerX = 0
-        self.centerY = 0    
+        self.centerY = 0
         z_height = -0.03
-        path_radius = 0 #0.08
-        rot_speed = 0 #0.625 rad/s / 100 fps
+        path_radius = 0  # 0.08
+        rot_speed = 0  # 0.625 rad/s / 100 fps
         self.angle1 = 0
         self.angle2 = 0
-        
+
         dt = 0.01
         fps = 100
         r = rospy.Rate(fps)
-        
-        self.no_stim_pre_exp_dur = 3*fps
-        self.no_stim_post_exp_dur = 3 *fps
+
+        self.no_stim_pre_exp_dur = 3 * fps
+        self.no_stim_post_exp_dur = 3 * fps
         self.no_stim_pre_exp_durFRAME = 0
         self.no_stim_post_exp_durFRAME = 0
-       
-        self.stim_trial_dur = 1*10*fps
-        self.inter_stim_durtim_dur = 0.5*fps
+
+        self.stim_trial_dur = 1 * 10 * fps
+        self.inter_stim_durtim_dur = 0.5 * fps
 
         self.stim_trial_count = 16
 
@@ -324,10 +412,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         stim_type = 0
         stim_flag = 0
 
-        fishx=0
-        fishy=0
-        fishz=0
-        
+        fishx = 0
+        fishy = 0
+        fishz = 0
+
         rho_fish = 0
 
         i = 0
@@ -337,8 +425,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         num_stim_types = 4
 
-    # Generate the random stimulus order
+        # Generate the random stimulus order
         stimulus_order = self.generate_stimulus_order(num_stim_types)
+
 
 
         while not rospy.is_shutdown():
@@ -349,6 +438,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             fishz = self.object_position.z
 
             if i < self.no_stim_pre_exp_dur:
+                # Before the experimental duration, hide the virtual fish nodes
                 self.hide_node(self._node_name1)
                 self.hide_node(self._node_name2)
                 stim_flag = 0  # Set stim_flag as 0
@@ -369,19 +459,23 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
                 if stim_start_frame <= i < stim_end_frame:
                     assert not (interstim_start_frame <= i < interstim_end_frame), "Inter-stimulus state is running during stimulus trial"
+                    # During the stimulus trial, run the specific stimulus type
                     self.run_stimuli_trial(i, stim_type)
                     stim_flag = 1  # Set stim_flag as 1
                 elif interstim_start_frame <= i < interstim_end_frame:
                     assert not (stim_start_frame <= i < stim_end_frame), "Stimulus trial is running during inter-stimulus state"
+                    # During the inter-stimulus state, hide the virtual fish nodes
                     self.hide_node(self._node_name1)
                     self.hide_node(self._node_name2)
                     stim_flag = 0  # Set stim_flag as 0
                     print("interStimFRAME: ", i)
             else:
+                # After the experimental duration, hide the virtual fish nodes
                 self.hide_node(self._node_name1)
                 self.hide_node(self._node_name2)
                 stim_flag = 0  # Set stim_flag as 0
                 print("no_stim_post_exp_durFRAME: ", i)
+
 
             # save all data
             self.log.time_i = i
