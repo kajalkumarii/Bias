@@ -218,7 +218,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.speed = 0.04
         rot_speed = self.speed / path_radius
 
-        initial_positions = [(0.02, 0), (-0.02, 0)]  # Define the initial positions for the virtual fish
+        initial_positions = [(0.02, 0), (0, 0.02)]  # Define the initial positions for the virtual fish
 
         for i, center in enumerate(centers):
             initial_position = initial_positions[i]  # Get the initial position for the current virtual fish
@@ -353,12 +353,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 self.hide_node(self._node_name2)
                 stim_flag = 0  # Set stim_flag as 0
                 print("no_stim_pre_exp_durFRAME: ", i)
-            # elif i < (self.no_stim_pre_exp_dur + (self.stim_trial_count * (self.stim_trial_dur + self.inter_stim_durtim_dur))):
-            #     current_trial_new = (i - self.no_stim_pre_exp_dur) // (self.stim_trial_dur + self.inter_stim_durtim_dur)
-            #     if current_trial_new != current_trial:
-            #         # We are in a new trial, so choose a new stimulus type
-            #         stim_type = self.get_stim_type()
-            #         current_trial = current_trial_new
+
             elif i < (self.no_stim_pre_exp_dur + (self.stim_trial_count * (self.stim_trial_dur + self.inter_stim_durtim_dur))):
                 current_trial_new = int((i - self.no_stim_pre_exp_dur) // (self.stim_trial_dur + self.inter_stim_durtim_dur))
                 if current_trial_new != current_trial:
