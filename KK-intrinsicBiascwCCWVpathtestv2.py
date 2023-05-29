@@ -194,6 +194,18 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.t += self.dt
 
 
+    # def move_in_circling_paths(self, path_radius, centers, direction):
+    #     dt = 0.01
+    #     z_height = -0.03
+    #     self.speed = 0.04
+    #     rot_speed = self.speed / path_radius
+
+    #     for i, center in enumerate(centers):
+    #         if i == 0:
+    #             self.angle1 = self.move_in_constant_speed_circle(path_radius, direction, center, self.angle1, self._node_name1)
+    #         else:
+    #             self.angle2 = self.move_in_constant_speed_circle(path_radius, -direction, center, self.angle2, self._node_name2)
+
     def move_in_circling_paths(self, path_radius, centers, direction):
         dt = 0.01
         z_height = -0.03
@@ -202,9 +214,23 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         for i, center in enumerate(centers):
             if i == 0:
-                self.angle1 = self.move_in_constant_speed_circle(path_radius, direction, center, self.angle1, self._node_name1)
+                initial_position1 = self.get_closest_point_on_circle(center, path_radius, (0, 0))
+                osg_x1, osg_y1 = initial_position1
+                self._osg_model.move_node(self._node_name1, x=osg_x1, y=osg_y1, z=z_height)
             else:
-                self.angle2 = self.move_in_constant_speed_circle(path_radius, -direction, center, self.angle2, self._node_name2)
+                initial_position2 = self.get_closest_point_on_circle(center, path_radius, (0, 0))
+                osg_x2, osg_y2 = initial_position2
+                self._osg_model.move_node(self._node_name2, x=osg_x2, y=osg_y2, z=z_height)
+
+    def get_closest_point_on_circle(self, center, radius, point):
+        dx = point[0] - center[0]
+        dy = point[1] - center[1]
+        magnitude = math.sqrt(dx ** 2 + dy ** 2)
+        if magnitude == 0:
+            return center  # Point is already at the center of the circle
+        closest_x = center[0] + dx * radius / magnitude
+        closest_y = center[1] + dy * radius / magnitude
+        return closest_x, closest_y
 
 
     def stimulate_fish_behavior(self, fishx, fishy):
