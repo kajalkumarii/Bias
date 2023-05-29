@@ -69,7 +69,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.initial_offset = 0.10  # 10 cm from the center
         self.current_offset = self.initial_offset  # initialize current_offset with initial_offset
         self.direction = -1  # direction of movement: 1 for forward, -1 for backward
-        self.path_length = 0.10  # path length in meters
+        self.path_length = 0.20  # path length in meters
         self.distance_between_fish = 0.08  # distance between fish in meters
         self.speed = 0.04  # speed in meters per second
         self.inside_radius = False
