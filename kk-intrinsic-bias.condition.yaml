@@ -1,0 +1,8 @@
+animated:
+    osg_filename: /home/lab/fishvr/experiments/osgts/kk_zebrafish.osgt
+    node_name1: Fish1 
+    node_name2: Fish2
+    node_bowl:  Bowl 
+    # fade_time_seconds: 1
+    animation_name: ArmatureAction
+    should_animate: true
