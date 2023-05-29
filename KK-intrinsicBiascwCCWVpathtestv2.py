@@ -66,6 +66,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.osg_y1 = 0
         self.osg_x2 = 0
         self.osg_y2 = 0
+        self.start_radius = 0.10  # 10 cm from the center
+        self.theta = 0  # start angle, 0 means along the x axis
         self.current_position = 0
         self.direction = 1  # direction of movement: 1 for forward, -1 for backward
         self.path_length = 0.10  # path length in meters
@@ -198,52 +200,46 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     #     self.osg_y2 = osg_y2
 
     def move_back_and_forth(self):
-        z_height = -0.03
+        zHeight = -0.03
         offset = 0.04  # Offset of 4cm in meters
-        start_position = 0.10  # 10cm from center in meters
 
-        # Initialize position if not done already
-        if self.t == 0:
-            self.current_position = start_position
-
-        # Calculate the x_position considering direction
-        x_position = self.current_position + self.direction * self.speed * self.dt
+        # Calculate the new radius considering direction and speed
+        radius = self.start_radius + self.direction * self.speed * self.dt
 
         # Implement desired path conditions
-        if self.direction > 0 and x_position >= start_position + self.path_length:  # If fish moved 10cm away from center
+        if self.direction > 0 and radius >= self.start_radius + self.path_length/2:  # If fish moved 5 cm away from start_radius
             self.direction *= -1  # change direction
-            x_position = start_position + self.path_length  # The fish should not move further than 10cm away
-        elif self.direction < 0 and x_position <= start_position - self.path_length:  # If fish moved 10cm towards center
+            radius = self.start_radius + self.path_length/2  # The fish should not move further than 5 cm away
+        elif self.direction < 0 and radius <= self.start_radius - self.path_length/2:  # If fish moved 5 cm towards center
             self.direction *= -1  # change direction
-            x_position = start_position - self.path_length  # The fish should not move further than 10cm towards center
+            radius = self.start_radius - self.path_length/2  # The fish should not move further than 5 cm towards center
 
-        # Update current position for the next move
-        self.current_position = x_position
+        # Convert radius and theta into Cartesian coordinates
+        x_position = radius * math.cos(self.theta)
+        y_position = radius * math.sin(self.theta)
 
         # Position of the first fish
-        osg_x1 = x_position
-        osg_y1 = -offset  # Offset applied here
+        osgX1 = x_position
+        osgY1 = y_position - offset  # Offset applied here
 
         # Position of the second fish
-        osg_x2 = osg_x1
-        osg_y2 = self.distance_between_fish - offset  # Offset applied here
+        osgX2 = osgX1
+        osgY2 = y_position + self.distance_between_fish - offset  # Offset applied here
 
         # Calculate the orientation
         orientation = np.pi / 2 * (1 - self.direction)
 
-        self._osg_model.move_node(self._node_name1, x=osg_x1, y=osg_y1, z=z_height, orientation_z=orientation)
-        self._osg_model.move_node(self._node_name2, x=osg_x2, y=osg_y2, z=z_height, orientation_z=orientation)
+        self._osg_model.move_node(self._node_name1, x=osgX1, y=osgY1, z=zHeight, orientation_z=orientation)
+        self._osg_model.move_node(self._node_name2, x=osgX2, y=osgY2, z=zHeight, orientation_z=orientation)
 
         # Increment time
         self.t += self.dt
 
-        self.osg_x1 = osg_x1
-        self.osg_y1 = osg_y1
-        self.osg_x2 = osg_x2
-        self.osg_y2 = osg_y2
+        self.osgX1 = osgX1
+        self.osgY1 = osgY1
+        self.osgX2 = osgX2
+        self.osgY2 = osgY2
 
-
-   
     def move_in_circling_paths(self, path_radius, centers, direction):
         dt = 0.01
         z_height = -0.03
