@@ -120,6 +120,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         return random.randint(1, 4)
 
     def run_stimuli_trial(self, i, stim_type):
+         # If stim_type is None, return immediately
+        if stim_type is None:
+            return
         current_trial = (i - self.no_stim_pre_exp_dur) // (self.stim_trial_dur + self.inter_stim_durtim_dur)
         print("currentStimType: ", stim_type)
         print("currentStimTrial: ", current_trial + 1)
@@ -141,7 +144,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             fishy = self.object_position.y
             self.stimulate_fish_behavior(fishx, fishy)
 
-    def generate_stimulus_order(self, num_stim_types):
+    def generate_stimulus_order(self, num_stim_types, stim_flag):
+        # If stim_flag is 0, set stim_type to None and return
+        if stim_flag == 0:
+            return [None]
         # Generate a random order of stimulus types
         stimulus_order = []
         stim_counts = [0] * num_stim_types  # Counter for each stimulus type
