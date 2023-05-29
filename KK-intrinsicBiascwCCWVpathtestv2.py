@@ -344,7 +344,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         num_stim_types = 4
 
     # Generate the random stimulus order
-        stimulus_order = self.generate_stimulus_order(num_stim_types)
+        stimulus_order = self.generate_stimulus_order(num_stim_types, stim_flag)
 
 
         while not rospy.is_shutdown():
