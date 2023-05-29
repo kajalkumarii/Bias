@@ -200,7 +200,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
     def move_back_and_forth(self):
         z_height = -0.03
         offset = 0.04  # Offset of 4cm in meters
-        start_position = 0.1  # 10cm from center in meters
+        start_position = 0.10  # 10cm from center in meters
 
         # Initialize position if not done already
         if self.t == 0:
@@ -210,12 +210,12 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         x_position = self.current_position + self.direction * self.speed * self.dt
 
         # Implement desired path conditions
-        if self.direction > 0 and x_position > start_position + 0.1:  # If fish moved 10cm away from center
+        if self.direction > 0 and x_position >= start_position + self.path_length:  # If fish moved 10cm away from center
             self.direction *= -1  # change direction
-            x_position = start_position + 0.1  # The fish should not move further than 10cm away
-        elif self.direction < 0 and x_position < start_position - 0.1:  # If fish moved 10cm towards center
+            x_position = start_position + self.path_length  # The fish should not move further than 10cm away
+        elif self.direction < 0 and x_position <= start_position - self.path_length:  # If fish moved 10cm towards center
             self.direction *= -1  # change direction
-            x_position = start_position - 0.1  # The fish should not move further than 10cm towards center
+            x_position = start_position - self.path_length  # The fish should not move further than 10cm towards center
 
         # Update current position for the next move
         self.current_position = x_position
