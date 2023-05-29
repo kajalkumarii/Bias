@@ -66,7 +66,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.osg_y1 = 0
         self.osg_x2 = 0
         self.osg_y2 = 0
-        self.initial_offset = 0  # 10 cm from the center
+        self.initial_offset = -0.10  # 10 cm from the center
         self.current_offset = self.initial_offset  # initialize current_offset with initial_offset
         self.direction = -1  # direction of movement: 1 for forward, -1 for backward
         self.path_length = 0.20  # path length in meters
