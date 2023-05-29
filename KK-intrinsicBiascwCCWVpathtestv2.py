@@ -408,7 +408,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.log.current_trial_new = current_trial_new
             self.log.current_trial = current_trial
             self.log.stim_type = stim_type
-            self.log.stim_present = stim_flag
+            self.log.stim_flag = stim_flag
             self.log.dt = dt
             self.log.rho_fish = rho_fish
             self.log.rot_speed = rot_speed
