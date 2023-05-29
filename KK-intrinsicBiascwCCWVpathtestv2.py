@@ -120,7 +120,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         return random.randint(1, 4)
 
     def run_stimuli_trial(self, i, stim_type):
-         # If stim_type is None, return immediately
+        # If stim_type is None, return immediately
         if stim_type is None:
             return
         current_trial = (i - self.no_stim_pre_exp_dur) // (self.stim_trial_dur + self.inter_stim_durtim_dur)
@@ -144,10 +144,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             fishy = self.object_position.y
             self.stimulate_fish_behavior(fishx, fishy)
 
-    def generate_stimulus_order(self, num_stim_types, stim_flag):
-        # If stim_flag is 0, set stim_type to None and return
-        if stim_flag == 0:
-            return [None]
+    def generate_stimulus_order(self, num_stim_types):
         # Generate a random order of stimulus types
         stimulus_order = []
         stim_counts = [0] * num_stim_types  # Counter for each stimulus type
@@ -313,7 +310,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.no_stim_post_exp_durFRAME = 0
        
         self.stim_trial_dur = 1*10*fps
-        self.inter_stim_durtim_dur = 1*fps
+        self.inter_stim_durtim_dur = 0.5*fps
 
         self.stim_trial_count = 16
 
@@ -344,7 +341,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         num_stim_types = 4
 
     # Generate the random stimulus order
-        stimulus_order = self.generate_stimulus_order(num_stim_types, stim_flag)
+        stimulus_order = self.generate_stimulus_order(num_stim_types)
 
 
         while not rospy.is_shutdown():
@@ -362,12 +359,25 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
             elif i < (self.no_stim_pre_exp_dur + (self.stim_trial_count * (self.stim_trial_dur + self.inter_stim_durtim_dur))):
                 current_trial_new = int((i - self.no_stim_pre_exp_dur) // (self.stim_trial_dur + self.inter_stim_durtim_dur))
-                if current_trial_new != current_trial:
-                    # We are in a new trial, so get the stimulus type from the generated order
-                    print('Length of stimulus_order: {}'.format(len(stimulus_order)))
-                    print('Self.stim_trial_count: {}'.format(self.stim_trial_count))
+                # if current_trial_new != current_trial:
+                #     if stim_flag == 0:
+                #         stim_type = None
+                #     else:
+                #         stim_type = stimulus_order[current_trial_new]
+                #     # # We are in a new trial, so get the stimulus type from the generated order
+                #     # stim_type = stimulus_order[current_trial_new]
+                #     current_trial = current_trial_new
 
-                    stim_type = stimulus_order[current_trial_new]
+                if current_trial_new != current_trial:
+                    if stim_flag == 0:
+                        stim_type = None
+                    elif current_trial_new < len(stimulus_order):  # check if index is within valid range
+                        stim_type = stimulus_order[current_trial_new]
+                    else:
+                        print("Index out of range: current_trial_new is larger than the size of stimulus_order")
+                        # handle the error, e.g., by skipping this iteration or setting stim_type to None
+                        continue  # skip this iteration
+
                     current_trial = current_trial_new
 
                 # Calculate start and end frames for stimulus trial and inter-stimulus state
