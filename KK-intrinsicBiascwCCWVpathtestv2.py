@@ -66,11 +66,12 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.osg_y1 = 0
         self.osg_x2 = 0
         self.osg_y2 = 0
-        # self.initial_offset = 0.10  # 10 cm from the center
-        self.current_offset = 0.08  # initialize current_offset with initial_offset
-        self.direction = -1  # direction of movement: 1 for forward, -1 for backward
-        self.path_length = 0.16  # path length in meters
-        # self.distance_between_fish = 0.08  # distance between fish in meters
+        self.direction = 1  # direction of movement: 1 for forward, -1 for backward
+        # self.path_length = 0.16  # path length in meters
+        self.distance_between_fish = 0.08  # distance between fish in meters
+        self.initial_offset = -0.08  # fish starts 8 cm away from the center towards one side
+        self.final_offset = 0.08  # fish ends 8 cm away from the center towards the other side
+        self.current_offset = self.initial_offset  # initialize current position
         self.speed = 0.04  # speed in meters per second
         self.inside_radius = False
         self.initial_position1 = np.array([0.0, 0.0])
@@ -165,12 +166,12 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         current_offset = self.current_offset + self.direction * self.speed * self.dt
 
         # Implement desired path conditions
-        if self.direction < 0 and current_offset <= 0:  # If fish has reached or crossed the center
+        if self.direction < 0 and current_offset <= self.initial_offset:
             self.direction *= -1  # change direction
-            current_offset = 0  # The fish should not move back beyond the center
-        elif self.direction > 0 and current_offset >= self.path_length:  # If fish moved 10 cm away from the center
+            current_offset = self.initial_offset  # The fish should not move back beyond the initial_offset
+        elif self.direction > 0 and current_offset >= self.final_offset:
             self.direction *= -1  # change direction
-            current_offset = self.path_length  # The fish should not move further than 10 cm away from the center
+            current_offset = self.final_offset  # The fish should not move further than final_offset
 
         # Update current position for the next move
         self.current_offset = current_offset
@@ -181,7 +182,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # Position of the second fish
         osg_x2 = osg_x1
-        osg_y2 = -osg_y1 # self.distance_between_fish - offset
+        osg_y2 = self.distance_between_fish - offset  # Offset applied here
 
         # Calculate the orientation
         orientation = np.pi / 2 * (1 - self.direction)
@@ -191,11 +192,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # Increment time
         self.t += self.dt
-
-        self.osg_x1 = osg_x1
-        self.osg_y1 = osg_y1
-        self.osg_x2 = osg_x2
-        self.osg_y2 = osg_y2
 
 
     def move_in_circling_paths(self, path_radius, centers, direction):
