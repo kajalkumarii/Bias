@@ -120,9 +120,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         return random.randint(1, 4)
 
     def run_stimuli_trial(self, i, stim_type):
-        # If stim_type is None, return immediately
-        if stim_type is None:
-            return
         current_trial = (i - self.no_stim_pre_exp_dur) // (self.stim_trial_dur + self.inter_stim_durtim_dur)
         print("currentStimType: ", stim_type)
         print("currentStimTrial: ", current_trial + 1)
@@ -359,25 +356,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
             elif i < (self.no_stim_pre_exp_dur + (self.stim_trial_count * (self.stim_trial_dur + self.inter_stim_durtim_dur))):
                 current_trial_new = int((i - self.no_stim_pre_exp_dur) // (self.stim_trial_dur + self.inter_stim_durtim_dur))
-                # if current_trial_new != current_trial:
-                #     if stim_flag == 0:
-                #         stim_type = None
-                #     else:
-                #         stim_type = stimulus_order[current_trial_new]
-                #     # # We are in a new trial, so get the stimulus type from the generated order
-                #     # stim_type = stimulus_order[current_trial_new]
-                #     current_trial = current_trial_new
-
                 if current_trial_new != current_trial:
-                    if stim_flag == 0:
-                        stim_type = None
-                    elif current_trial_new < len(stimulus_order):  # check if index is within valid range
-                        stim_type = stimulus_order[current_trial_new]
-                    else:
-                        print("Index out of range: current_trial_new is larger than the size of stimulus_order")
-                        # handle the error, e.g., by skipping this iteration or setting stim_type to None
-                        continue  # skip this iteration
-
+                    # We are in a new trial, so get the stimulus type from the generated order
+                    stim_type = stimulus_order[current_trial_new]
                     current_trial = current_trial_new
 
                 # Calculate start and end frames for stimulus trial and inter-stimulus state
