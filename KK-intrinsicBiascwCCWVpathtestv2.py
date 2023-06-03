@@ -164,6 +164,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             # Stimulus type 1: Move in a constant speed circle around the center of the arena
             initial_position = (0.02, 0)  # Define the initial position for the virtual fish
             self.angle1, self.osg_x1, self.osg_y1 = self.move_in_constant_speed_circle(path_radius=0.08, direction=self.direction, center=(0,0), initial_position=initial_position, angle=self.angle1, node_name=self._node_name1)
+        elif stim_type == 2:
             # Stimulus type 2: Move back and forth
             self.move_back_and_forth()
         elif stim_type == 3:
