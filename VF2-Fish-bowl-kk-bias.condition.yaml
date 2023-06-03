@@ -1,5 +1,5 @@
 animated:
-    osg_filename: /home/lab/fishvr/experiments/osgts/VR-Fish-bowl.osgt
+    osg_filename: /home/lab/fishvr/experiments/osgts/2VF-Fish-bowl-kk-bias.osgt
     node_name1: Fish1 
     node_name2: Fish2
     node_bowl:  Bowl 
