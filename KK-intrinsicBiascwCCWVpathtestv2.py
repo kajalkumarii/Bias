@@ -330,7 +330,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # Calculate distance between real fish and center
         distance = np.sqrt((fishx - 0)**2 + (fishy - 0)**2)
-        real_fish_angle = np.arctan2(fishy, fishx)  # This calculates the angle θ of the real fish direction
+        real_fish_angle = np.arctan2(fishy, fishx)  # This calculates the angle theta of the real fish direction
 
         if distance > radius_threshold:  # If real fish is outside radius
             initial_position = (0.01, 0)  # Define the initial position for the virtual fish
