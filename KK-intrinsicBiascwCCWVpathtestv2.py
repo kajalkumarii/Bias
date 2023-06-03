@@ -162,8 +162,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         if stim_type == 1:
             # Stimulus type 1: Move in a constant speed circle around the center of the arena
-            initial_position = (0.02, 0)  # Define the initial position for the virtual fish
-            self.angle1 = self.move_in_constant_speed_circle(path_radius=0.08, direction=self.direction, center=(0,0), initial_position=initial_position, angle=self.angle1, node_name=self._node_name1)
+            initial_position = (0, 0)  # Define the initial position for the virtual fish
+            self.angle1, self.osg_x1, self.osg_y1 = self.move_in_constant_speed_circle(path_radius=0.08, direction=self.direction, center=(0,0), initial_position=initial_position, angle=self.angle1, node_name=self._node_name1)
         elif stim_type == 2:
             # Stimulus type 2: Move back and forth
             self.move_back_and_forth()
@@ -176,7 +176,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             fishx = self.object_position.x
             fishy = self.object_position.y
             self.stimulate_fish_behavior(fishx, fishy)
-
 
 
     def generate_stimulus_order(self, num_stim_types):
@@ -227,14 +226,12 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         rot_speed = self.speed / path_radius * direction  # angular speed in rad/s
         angle += rot_speed * dt  # Update angle based on angular speed
-        osg_x1 = center[0] + initial_position[0] + path_radius * np.cos(angle)  # x position of the node
-        osg_y1 = center[1] + initial_position[1] + path_radius * np.sin(angle)  # y position of the node
+        osg_x = center[0] + initial_position[0] + path_radius * np.cos(angle)  # x position of the node
+        osg_y = center[1] + initial_position[1] + path_radius * np.sin(angle)  # y position of the node
         orientation = angle + (np.pi / 2 * direction)  # calculate orientation
-        self._osg_model.move_node(node_name, x=osg_x1, y=osg_y1, z=z_height, orientation_z=orientation)
-        print("x: ", osg_x1, "y: ", osg_y1, "z: ", z_height, "orientation: ", orientation)
-        self.osg_x1 = osg_x1
-        self.osg_y1 = osg_y1
-        return angle
+        self._osg_model.move_node(node_name, x=osg_x, y=osg_y, z=z_height, orientation_z=orientation)
+        print("x: ", osg_x, "y: ", osg_y, "z: ", z_height, "orientation: ", orientation)
+        return angle, osg_x, osg_y
 
     def move_back_and_forth(self):
         """
@@ -279,6 +276,11 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         # Increment time
         self.t += self.dt
 
+        self.osg_x1 = osg_x1
+        self.osg_y1 = osg_y1
+        self.osg_x2 = osg_x2
+        self.osg_y2 = osg_y2
+
 
     def move_in_circling_paths(self, path_radius, centers, direction):
         """
@@ -299,70 +301,78 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         for i, center in enumerate(centers):
             initial_position = initial_positions[i]  # Get the initial position for the current virtual fish
             if i == 0:
-                self.angle1 = self.move_in_constant_speed_circle(path_radius, direction, center, initial_position, self.angle1, self._node_name1)
+                self.angle1, self.osg_x1, self.osg_y1 = self.move_in_constant_speed_circle(path_radius, direction, center, initial_position, self.angle1, self._node_name1)
             else:
-                self.angle2 = self.move_in_constant_speed_circle(path_radius, -direction, center, initial_position, self.angle2, self._node_name2)
-  
+                self.angle2, self.osg_x2, self.osg_y2 = self.move_in_constant_speed_circle(path_radius, -direction, center, initial_position, self.angle2, self._node_name2)
 
 
-    def stimulate_fish_behavior(self, fishx, fishy):
-        """
-        Stimulate fish behavior based on the position of the real fish.
+def stimulate_fish_behavior(self, fishx, fishy):
+    """
+    Stimulate fish behavior based on the position of the real fish.
 
-        Args:
-            fishx (float): X-coordinate of the real fish position.
-            fishy (float): Y-coordinate of the real fish position.
-        """
-        dt = 0.01  # time step
-        z_height = -0.03  # height of the center of the circle above the table
-        self.speed = 0.04  # speed of virtual fish
-        radius_threshold = 0.04  # 4 cm radius threshold
-        circularpath_radius = 0.02  # 2 cm radius for circular path
-        straight_path_length = 0.1  # 10 cm straight path
-        initial_distance = 0.01  # 1 cm distance from real fish
-        angle_between_paths = np.radians(60)  # 60 degree angle in radians
+    Args:
+        fishx (float): X-coordinate of the real fish position.
+        fishy (float): Y-coordinate of the real fish position.
+    """
+    dt = 0.01  # time step
+    z_height = -0.03  # height of the center of the circle above the table
+    self.speed = 0.04  # speed of virtual fish
+    radius_threshold = 0.04  # 4 cm radius threshold
+    circularpath_radius = 0.02  # 2 cm radius for circular path
+    straight_path_length = 0.1  # 10 cm straight path
+    initial_distance = 0.01  # 1 cm distance from real fish
+    angle_between_paths = np.radians(60)  # 60 degree angle in radians
 
-        # Calculate distance between real fish and center
-        distance = np.sqrt((fishx - 0)**2 + (fishy - 0)**2)
+    # Calculate distance between real fish and center
+    distance = np.sqrt((fishx - 0) ** 2 + (fishy - 0) ** 2)
 
-        if distance > radius_threshold:  # If real fish is outside radius
-            initial_position = (0.01, 0)  # Define the initial position for the virtual fish
-            # Move virtual fish in a circular path around the center
-            self.angle1 = self.move_in_constant_speed_circle(path_radius=circularpath_radius, direction=1, center=(0, 0), initial_position=initial_position, angle=self.angle1, node_name=self._node_name1)
-            # hide node 2
-            self.hide_node(self._node_name2)
-            self.inside_radius = False  # set the flag to False
-        else:  # If real fish is inside radius
-            if not self.inside_radius:  # If it is the first entry
-                self.t = 0
-                self.direction = 1  # Initial direction
-                self.initial_position1 = np.array([fishx + initial_distance * np.cos(angle_between_paths/2), fishy + initial_distance * np.sin(angle_between_paths/2)])
-                self.initial_position2 = np.array([fishx + initial_distance * np.cos(-angle_between_paths/2), fishy + initial_distance * np.sin(-angle_between_paths/2)])
-                self.inside_radius = True  # set the flag to True
+    if distance > radius_threshold:  # If real fish is outside radius
+        initial_position = (0.01, 0)  # Define the initial position for the virtual fish
+        # Move virtual fish in a circular path around the center
+        self.angle1 = self.move_in_constant_speed_circle(
+            path_radius=circularpath_radius,
+            direction=1,
+            center=(0, 0),
+            initial_position=initial_position,
+            angle=self.angle1,
+            node_name=self._node_name1,
+        )
+        # hide node 2
+        self.hide_node(self._node_name2)
+        self.inside_radius = False  # set the flag to False
+    else:  # If real fish is inside radius
+        if not self.inside_radius:  # If it is the first entry
+            self.t = 0
+            self.direction = 1  # Initial direction
+            self.initial_position1 = np.array([fishx + initial_distance * np.cos(angle_between_paths / 2),fishy + initial_distance * np.sin(angle_between_paths / 2),])
+            self.initial_position2 = np.array([fishx + initial_distance * np.cos(-angle_between_paths / 2), fishy + initial_distance * np.sin(-angle_between_paths / 2),])
+            self.inside_radius = True  # set the flag to True
 
-            if self.t * self.speed > straight_path_length:  # If virtual fish has traveled 10 cm
-                self.t = 0
-                self.direction *= -1
+        if self.t * self.speed > straight_path_length:  # If virtual fish has traveled 10 cm
+            self.t = 0
+            self.direction *= -1
 
-            # Calculate new positions of the virtual fish
-            osg_x1 = self.initial_position1 + np.array([self.t * self.speed * np.cos(angle_between_paths/2), self.t * self.speed * np.sin(angle_between_paths/2)])
-            osg_x2 = self.initial_position2 + np.array([self.t * self.speed * np.cos(-angle_between_paths/2), self.t * self.speed * np.sin(-angle_between_paths/2)])
+        # Calculate new positions of the virtual fish
+        osg_x1 = self.initial_position1 + np.array([self.t * self.speed * np.cos(angle_between_paths / 2),self.t * self.speed * np.sin(angle_between_paths / 2),])
+        osg_x2 = self.initial_position2 + np.array([self.t * self.speed * np.cos(-angle_between_paths / 2),self.t * self.speed * np.sin(-angle_between_paths / 2),])
 
-            # Calculate the orientation angle based on the direction of motion
-            angle1 = np.arctan2(self.t * self.speed * np.sin(angle_between_paths/2), self.t * self.speed * np.cos(angle_between_paths/2))
-            angle2 = np.arctan2(self.t * self.speed * np.sin(-angle_between_paths/2), self.t * self.speed * np.cos(-angle_between_paths/2))
+        # Calculate the orientation angle based on the direction of motion
+        angle1 = np.arctan2(self.t * self.speed * np.sin(angle_between_paths / 2),self.t * self.speed * np.cos(angle_between_paths / 2),)
+        angle2 = np.arctan2(self.t * self.speed * np.sin(-angle_between_paths / 2),self.t * self.speed * np.cos(-angle_between_paths / 2),)
 
-            # Move the virtual fish to the new positions with orientation
-            self._osg_model.move_node(self._node_name1, x=osg_x1[0], y=osg_x1[1], z=z_height, orientation_z=angle1)
-            self._osg_model.move_node(self._node_name2, x=osg_x2[0], y=osg_x2[1], z=z_height, orientation_z=angle2)
+        # Move the virtual fish to the new positions with orientation
+        self._osg_model.move_node(self._node_name1, x=osg_x1[0], y=osg_x1[1], z=z_height, orientation_z=angle1)
+        self._osg_model.move_node(self._node_name2, x=osg_x2[0], y=osg_x2[1], z=z_height, orientation_z=angle2)
 
-            # Increment time
-            self.t += dt
+        # Record positions
+        self.osg_x1.append(osg_x1[0])
+        self.osg_y1.append(osg_x1[1])
+        self.osg_x2.append(osg_x2[0])
+        self.osg_y2.append(osg_x2[1])
 
-            self.osg_x1 = osg_x1[0]
-            self.osg_y1 = osg_x1[1]
-            self.osg_x2 = osg_x2[0]
-            self.osg_y2 = osg_x2[1]
+        # Increment time
+        self.t += dt
+
 
 
     # this is the main function that is called after the node is constructed. you can do anything
@@ -389,13 +399,13 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         fps = 100
         r = rospy.Rate(fps)
 
-        self.no_stim_pre_exp_dur = 3 * fps
-        self.no_stim_post_exp_dur = 3 * fps
+        self.no_stim_pre_exp_dur = 10 *60* fps
+        self.no_stim_post_exp_dur = 10 *60* fps
         self.no_stim_pre_exp_durFRAME = 0
         self.no_stim_post_exp_durFRAME = 0
 
-        self.stim_trial_dur = 1 * 10 * fps
-        self.inter_stim_durtim_dur = 0.5 * fps
+        self.stim_trial_dur = 4 * 60 * fps
+        self.inter_stim_durtim_dur = 1*60 * fps
 
         self.stim_trial_count = 16
 
