@@ -322,7 +322,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         dt = 0.01  # time step
         z_height = -0.03  # height of the center of the circle above the table
         self.speed = 0.04  # speed of virtual fish
-        radius_threshold = 0.025  # 4 cm radius threshold
+        radius_threshold = 0.08  # 4 cm radius threshold
         circularpath_radius = 0.02  # 2 cm radius for circular path
         straight_path_length = 0.1  # 10 cm straight path
         initial_distance = 0.01  # 1 cm distance from real fish
@@ -330,6 +330,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # Calculate distance between real fish and center
         distance = np.sqrt((fishx - 0)**2 + (fishy - 0)**2)
+        real_fish_angle = np.arctan2(fishy, fishx)  # This calculates the angle θ of the real fish direction
 
         if distance > radius_threshold:  # If real fish is outside radius
             initial_position = (0.01, 0)  # Define the initial position for the virtual fish
@@ -343,17 +344,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             if not self.inside_radius:  # If it is the first entry
                 self.t = 0
                 self.direction = 1  # Initial direction
-                self.initial_position1 = np.array([fishx + initial_distance * np.cos(angle_between_paths/2), fishy + initial_distance * np.sin(angle_between_paths/2)])
-                self.initial_position2 = np.array([fishx + initial_distance * np.cos(-angle_between_paths/2), fishy + initial_distance * np.sin(-angle_between_paths/2)])
+                # Adjust the initial position of VF to be along the direction of real fish
+                self.initial_position1 = np.array([fishx + initial_distance * np.cos(real_fish_angle + angle_between_paths/2), fishy + initial_distance * np.sin(real_fish_angle + angle_between_paths/2)])
+                self.initial_position2 = np.array([fishx + initial_distance * np.cos(real_fish_angle - angle_between_paths/2), fishy + initial_distance * np.sin(real_fish_angle - angle_between_paths/2)])
                 self.inside_radius = True  # set the flag to True
-
-                self.osg_x1 = self.initial_position1[0]
-                self.osg_y1 = self.initial_position1[1]
-                self.osg_x2 = self.initial_position2[0]
-                self.osg_y2 = self.initial_position2[1]
-
-                print("inside x1: ", self.osg_x1, "inside y1: ", self.osg_y1, "inside x2: ", self.osg_x2, "inside y2: ", self.osg_y2, "z: ", z_height, "orientation: ", self.angle1)
-
 
 
             if self.t * self.speed > straight_path_length:  # If virtual fish has traveled 10 cm
