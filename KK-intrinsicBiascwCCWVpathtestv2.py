@@ -322,7 +322,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         dt = 0.01  # time step
         z_height = -0.03  # height of the center of the circle above the table
         self.speed = 0.04  # speed of virtual fish
-        radius_threshold = 0.08  # 4 cm radius threshold
+        radius_threshold = 0.025  # 4 cm radius threshold
         circularpath_radius = 0.02  # 2 cm radius for circular path
         straight_path_length = 0.1  # 10 cm straight path
         initial_distance = 0.01  # 1 cm distance from real fish
