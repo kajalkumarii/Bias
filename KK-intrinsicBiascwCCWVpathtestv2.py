@@ -201,6 +201,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             stim_type = random.randint(1, num_stim_types)
             if stim_counts[stim_type - 1] < (num_trials // num_stim_types):  # Check if the stimulus count is less than the desired count
                 stimulus_order.append(stim_type)
+                print("stimulus_order: ", stimulus_order)
                 stim_counts[stim_type - 1] += 1
         return stimulus_order
 
@@ -273,7 +274,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         self._osg_model.move_node(self._node_name1, x=osg_x1, y=osg_y1, z=zHeight, orientation_z=orientation)
         self._osg_model.move_node(self._node_name2, x=osg_x2, y=osg_y2, z=zHeight, orientation_z=orientation)
-
         # Increment time
         self.t += self.dt
 
@@ -281,6 +281,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         self.osg_y1 = osg_y1
         self.osg_x2 = osg_x2
         self.osg_y2 = osg_y2
+        print("x1: ", osg_x1, "y1: ", osg_y1, "x2: ", osg_x2, "y2: ", osg_y2, "z: ", zHeight, "orientation: ", orientation)
 
 
     def move_in_circling_paths(self, path_radius, centers, direction):
@@ -303,9 +304,10 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             initial_position = initial_positions[i]  # Get the initial position for the current virtual fish
             if i == 0:
                 self.angle1, self.osg_x1, self.osg_y1 = self.move_in_constant_speed_circle(path_radius, direction, center, initial_position, self.angle1, self._node_name1)
+                print("x1: ", self.osg_x1, "y1: ", self.osg_y1, "z: ", z_height, "orientation: ", self.angle1)
             else:
                 self.angle2, self.osg_x2, self.osg_y2 = self.move_in_constant_speed_circle(path_radius, -direction, center, initial_position, self.angle2, self._node_name2)
-  
+                print("x2: ", self.osg_x2, "y2: ", self.osg_y2, "z: ", z_height, "orientation: ", self.angle2)
 
 
     def stimulate_fish_behavior(self, fishx, fishy):
@@ -319,7 +321,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         dt = 0.01  # time step
         z_height = -0.03  # height of the center of the circle above the table
         self.speed = 0.04  # speed of virtual fish
-        radius_threshold = 0.04  # 4 cm radius threshold
+        radius_threshold = 0.08  # 4 cm radius threshold
         circularpath_radius = 0.02  # 2 cm radius for circular path
         straight_path_length = 0.1  # 10 cm straight path
         initial_distance = 0.01  # 1 cm distance from real fish
@@ -332,6 +334,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             initial_position = (0.01, 0)  # Define the initial position for the virtual fish
             # Move virtual fish in a circular path around the center
             self.angle1, self.osg_x1, self.osg_y1 = self.move_in_constant_speed_circle(path_radius=circularpath_radius,direction=1,center=(0, 0),initial_position=initial_position,angle=self.angle1,node_name=self._node_name1,)
+            print("x1: ", self.osg_x1, "y1: ", self.osg_y1, "z: ", z_height, "orientation: ", self.angle1)
             # hide node 2
             self.hide_node(self._node_name2)
             self.inside_radius = False  # set the flag to False
@@ -347,6 +350,9 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
                 self.osg_y1 = self.initial_position1[1]
                 self.osg_x2 = self.initial_position2[0]
                 self.osg_y2 = self.initial_position2[1]
+
+                print("inside x1: ", self.osg_x1, "inside y1: ", self.osg_y1, "inside x2: ", self.osg_x2, "inside y2: ", self.osg_y2, "z: ", z_height, "orientation: ", self.angle1)
+
 
 
             if self.t * self.speed > straight_path_length:  # If virtual fish has traveled 10 cm
@@ -373,6 +379,8 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.osg_x2 = osg_x2[0]
             self.osg_y2 = osg_x2[1]
 
+            print("outside x1: ", self.osg_x1, "outside y1: ", self.osg_y1, "outside x2: ", self.osg_x2, "outside y2: ", self.osg_y2, "z: ", z_height, "orientation: ", self.angle1)
+
 
     # this is the main function that is called after the node is constructed. you can do anything
     # you wish in here, but typically this is where you would dynamically change the virtual
@@ -398,13 +406,13 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
         fps = 100
         r = rospy.Rate(fps)
 
-        self.no_stim_pre_exp_dur = 5* fps
-        self.no_stim_post_exp_dur = 5* fps
+        self.no_stim_pre_exp_dur = 3* fps
+        self.no_stim_post_exp_dur = 3* fps
         self.no_stim_pre_exp_durFRAME = 0
         self.no_stim_post_exp_durFRAME = 0
 
-        self.stim_trial_dur = 4 * 10 * fps
-        self.inter_stim_durtim_dur = 10 * fps
+        self.stim_trial_dur = 10 * fps
+        self.inter_stim_durtim_dur = 3 * fps
 
         self.stim_trial_count = 16
 
