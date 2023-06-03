@@ -330,7 +330,6 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
 
         # Calculate distance between real fish and center
         distance = np.sqrt((fishx - 0)**2 + (fishy - 0)**2)
-        real_fish_angle = np.arctan2(fishy, fishx)  # This calculates the angle theta of the real fish direction
 
         if distance > radius_threshold:  # If real fish is outside radius
             initial_position = (0.01, 0)  # Define the initial position for the virtual fish
@@ -341,18 +340,20 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.hide_node(self._node_name2)
             self.inside_radius = False  # set the flag to False
         else:  # If real fish is inside radius
-            if not self.inside_radius:  # If it is the first entry
+            real_fish_angle = np.arctan2(fishy, fishx)  # This calculates the angle theta of the real fish direction
+            if not self.inside_radius:  
                 self.t = 0
                 self.direction = 1  # Initial direction
                 # Adjust the initial position of VF to be along the direction of real fish
                 self.initial_position1 = np.array([fishx + initial_distance * np.cos(real_fish_angle + angle_between_paths/2), fishy + initial_distance * np.sin(real_fish_angle + angle_between_paths/2)])
                 self.initial_position2 = np.array([fishx + initial_distance * np.cos(real_fish_angle - angle_between_paths/2), fishy + initial_distance * np.sin(real_fish_angle - angle_between_paths/2)])
-                self.inside_radius = True  # set the flag to True
+                self.inside_radius = True  
 
-
-            if self.t * self.speed > straight_path_length:  # If virtual fish has traveled 10 cm
-                self.t = 0
-                self.direction *= -1
+            # Check if the VF has moved more than 10 cm
+            if np.linalg.norm(np.array([self.t * self.speed, 0])) > straight_path_length:
+                # Switch to circling at the center
+                self.inside_radius = False
+                return
 
             # Calculate new positions of the virtual fish
             osg_x1 = self.initial_position1 + np.array([self.t * self.speed * np.cos(angle_between_paths/2), self.t * self.speed * np.sin(angle_between_paths/2)])
@@ -374,8 +375,7 @@ class intrinsicBiasExperiment(fishvr.experiment.Experiment):
             self.osg_x2 = osg_x2[0]
             self.osg_y2 = osg_x2[1]
 
-            print("outside x1: ", self.osg_x1, "outside y1: ", self.osg_y1, "outside x2: ", self.osg_x2, "outside y2: ", self.osg_y2, "z: ", z_height, "orientation: ", self.angle1)
-
+            print("x1: ", self.osg_x1, "y1: ", self.osg_y1, "x2: ", self.osg_x2, "y2: ", self.osg_y2, "z: ", z_height, "orientation: ", self.angle1)
 
     # this is the main function that is called after the node is constructed. you can do anything
     # you wish in here, but typically this is where you would dynamically change the virtual
